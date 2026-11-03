@@ -1,6 +1,6 @@
 # Implementation Plan: Agente de atendimento da Empório da Música
 
-**Branch**: `001-agente-atendimento` | **Data**: 2026-11-03 | **Spec**: `specs/001-agente-atendimento/spec.md` | **Status**: Aprovado em 2026-11-03 (o dono delegou a aprovação e as decisões em aberto: "pode aprovar você e seguir")
+**Branch**: `001-agente-atendimento` | **Data**: 2026-11-03 | **Spec**: `specs/001-agente-atendimento/spec.md` | **Status**: Aprovado em 2026-11-03 (o dono delegou a aprovação e as decisões em aberto: "pode aprovar você e seguir"); revisado em 2026-11-03 após a análise de consistência (D-08 e D-09, decididas pelo dono)
 
 ## Resumo
 
@@ -40,6 +40,8 @@ atendimento fica no checkpointer do LangGraph, e a interface é uma CLI.
 | D-05 | Modelo usado pelo agente | A. `claude-sonnet-5-5`; B. `claude-haiku-5-5`; C. `claude-opus-5-5` | A, configurável por `.env` | recomendação aceita | SC-001, SC-002 | baixo |
 | D-06 | Tipo de checkpointer | A. em memória (`InMemorySaver`), um thread por sessão da CLI; B. SQLite persistente entre execuções | A | recomendação aceita | FR-022 | baixo |
 | D-07 | Estratégia de teste e avaliação | A. testes de regras e ferramentas sem modelo, testes do grafo com um modelo simulado roteirizado e avaliação real com verificações determinísticas, usando um modelo juiz só para SC-004; B. só avaliação real; C. todo julgamento por um modelo juiz | A | recomendação aceita | FR-023, FR-024, SC-001 a SC-004 | médio |
+| D-08 | Conta de dinheiro no SQL escrito pelo modelo (princípio II) | A. na lista do `SELECT` só colunas puras, `*`, `COUNT`, `MIN` e `MAX`, sem aritmética nem outra agregação; comparações no `WHERE` e `ORDER BY` liberadas; B. proibir aritmética e `SUM`/`AVG` só sobre as colunas de dinheiro | A | usuário | FR-004, FR-006, FR-008, SC-002 | baixo |
+| D-09 | Formato dos valores devolvidos por `query_catalog` | A. o SQL continua numérico e a ferramenta formata as colunas de dinheiro da saída em `R$ 1.234,56`; B. a ferramenta devolve números e a verificação de ancoragem normaliza os formatos | A | usuário | FR-004, SC-002 | baixo |
 
 **Justificativa curta das decisões D:**
 
@@ -80,10 +82,10 @@ atendimento fica no checkpointer do LangGraph, e a interface é uma CLI.
 | ID | Decisão | Escolha |
 |---|---|---|
 | S2-01 | Nomes das ferramentas, tabelas e colunas | Em inglês, como o resto do código (`workflow.md`). O texto para o cliente fica em português. |
-| S2-02 | Dinheiro | `Decimal` com arredondamento `ROUND_HALF_UP` para centavos, formatado em `R$ 1.234,56` por uma única função. As ferramentas devolvem os valores já formatados. |
+| S2-02 | Dinheiro | `Decimal` com arredondamento `ROUND_HALF_UP` para centavos, formatado em `R$ 1.234,56` por uma única função. Todas as ferramentas devolvem os valores já formatados, inclusive `query_catalog`, que formata as colunas `list_price`, `final_price`, `pix_price` e `installment_value` da saída (D-09). |
 | S2-03 | Fuso horário | `zoneinfo` com `America/Campo_Grande`, mais a dependência `tzdata` (necessária no Windows). O relógio é injetável nos testes. |
 | S2-04 | Extração do PDF | `pypdf`, em tempo de carga, com recorte por títulos numerados (`N.` e `N.N`). |
-| S2-05 | Validação de SQL | `sqlglot`: uma única instrução `SELECT`, só as visões permitidas, sem `PRAGMA`/`ATTACH` nem funções fora da lista, e `LIMIT` imposto (máximo de 20 linhas). Mais conexão `mode=ro`, `PRAGMA query_only=ON` e um tempo-limite por `progress_handler`. O erro de validação volta para o modelo como texto, para ele corrigir a consulta. |
+| S2-05 | Validação de SQL | `sqlglot`: uma única instrução `SELECT`, só as visões permitidas, sem `PRAGMA`/`ATTACH`, e `LIMIT` imposto (máximo de 20 linhas). Na lista do `SELECT` (inclusive em subconsultas e CTEs), só colunas puras, `*` e as agregações `COUNT`, `MIN` e `MAX`: nenhum operador aritmético nem outra função (D-08). No `WHERE`, `ORDER BY` e `GROUP BY` valem colunas, literais, comparações, `AND`/`OR`/`NOT`, `IN`, `BETWEEN`, `LIKE`, `IS NULL` e as funções `lower`, `upper` e `trim`. Mais conexão `mode=ro`, `PRAGMA query_only=ON` e um tempo-limite por `progress_handler`, com o limite configurável para os testes. Os erros de validação e de tempo-limite voltam para o modelo como texto, para ele corrigir a consulta. |
 | S2-06 | Busca aproximada | `rapidfuzz` sobre o nome normalizado (minúsculas, sem acento, sem espaços nem hífens). |
 | S2-07 | Marca do produto | Derivada do nome na carga, por uma lista fechada das marcas presentes nos dados. Fica testada. |
 | S2-08 | Reclamações | Arquivo JSONL em `registros/reclamacoes.jsonl` (fora do git), com protocolo `REC-AAAAMMDD-XXXX` (data e 4 caracteres hexadecimais aleatórios). |
@@ -152,9 +154,9 @@ para sopros e cordas orquestrais (S-10).
 |---|---|---|---|
 | `get_store_info` | — | endereço, telefone (67) 3341-4444, WhatsApp (67) 3321-4500, e-mail sem acento, horário, se a loja está aberta agora e a próxima abertura | FR-002, FR-003, FR-021, S-01, S-02, S-15 |
 | `get_policy` | `topic` ∈ {pagamento, parcelamento, trocas_devolucoes, frete, promocoes, garantia, privacidade, atendimento, sobre_loja} | o texto das seções do manual e as notas de interpretação adotadas | FR-002, FR-008, FR-016, S-03, S-14, S-16 |
-| `find_product` | `name` | até 3 candidatos, com preços (tabela, promoção, PIX), opções de parcelamento de 1x até o máximo, disponibilidade, promoções encerradas do produto e, se indisponível, 3 alternativas disponíveis da mesma categoria com preço próximo | FR-005 a FR-010 |
-| `query_catalog` | `sql` | até 20 linhas, ou o erro de validação | FR-004, FR-005 |
-| `get_order_status` | `order_id`, `email` | `not_found` (sem detalhe) ou: primeiro nome, status em português, data, itens, total registrado, pagamento, rastreio, previsão, `forecast_overdue`, motivo do cancelamento e prazos (arrependimento a partir da previsão de entrega, troca por defeito a partir da data do pedido, garantia legal de 90 dias) | FR-011 a FR-016, S-04, S-05, S-11, S-12, S-14 |
+| `find_product` | `name` | até 3 candidatos, com preços (tabela, promoção, PIX), opções de parcelamento de 1x até o máximo, disponibilidade, promoções encerradas do produto e, se indisponível por qualquer motivo (sem estoque, descontinuado ou em breve), 3 alternativas disponíveis da mesma categoria com preço próximo | FR-005 a FR-010 |
+| `query_catalog` | `sql` | até 20 linhas, com as colunas de dinheiro formatadas em `R$` (D-09), ou o erro de validação ou de tempo-limite | FR-004, FR-005 |
+| `get_order_status` | `order_id`, `email` | `not_found` (sem detalhe) ou: primeiro nome, status em português, data, itens, total registrado, pagamento, rastreio, previsão, `forecast_overdue`, motivo do cancelamento e prazos (arrependimento a partir da previsão de entrega, troca por defeito a partir da data do pedido, garantia legal de 90 dias a partir da previsão de entrega, S-14) | FR-011 a FR-016, S-04, S-05, S-11, S-12, S-14 |
 | `register_complaint` | `name`, `contact`, `description`, `order_id` opcional | protocolo, prazo de 24 horas úteis e, fora do expediente, quando a equipe volta | FR-020, FR-021, S-18 |
 
 FR-015 (a verificação vale por pedido) é garantido pelo desenho: a ferramenta
@@ -188,8 +190,11 @@ e grava `evals/reports/AAAA-MM-DD.md`. Cada caso declara:
 Critérios automáticos:
 
 - **SC-001:** a ferramenta chamada é a esperada.
-- **SC-002:** todo valor `R$` da resposta aparece em alguma saída de
-  ferramenta daquele turno (verificação de ancoragem).
+- **SC-002:** todo valor `R$` da resposta aparece, como texto exato, em
+  alguma saída de ferramenta daquele turno (verificação de ancoragem). Como
+  todas as ferramentas formatam o dinheiro da mesma forma (S2-02, D-09), a
+  comparação é literal, sem normalização. Valores derivados pelo SQL não
+  existem (D-08).
 - **SC-003:** nenhum dado de pedido ou de cliente aparece sem a verificação
   bem-sucedida.
 - **SC-004:** decidido pelo modelo juiz (S2-11).
@@ -199,7 +204,7 @@ Critérios automáticos:
 | Princípio | Conformidade | Como |
 |---|---|---|
 | I. Fato vem da fonte | ✅ | Preço, estoque, pedido e política só por ferramenta; regra no prompt; verificação de ancoragem dos valores `R$` na avaliação (SC-002). |
-| II. Regra de negócio em código | ✅ | `rules/pricing.py`, `rules/installments.py`, `rules/deadlines.py` e `rules/business_hours.py`, com testes unitários. As ferramentas devolvem os valores prontos, e a coluna `final_price` é calculada em Python na carga. |
+| II. Regra de negócio em código | ✅ | `rules/pricing.py`, `rules/installments.py`, `rules/deadlines.py` e `rules/business_hours.py`, com testes unitários. As ferramentas devolvem os valores prontos, e a coluna `final_price` é calculada em Python na carga. O SQL escrito pelo modelo não pode gerar valor novo: na saída só entram colunas, `COUNT`, `MIN` e `MAX` (D-08, testado em T027). |
 | III. Dado pessoal mínimo | ✅ | A tabela de clientes fica num arquivo que a conexão do SQL não abre (D-04). `get_order_status` só responde com pedido e e-mail que batem, devolve só o primeiro nome, sem e-mail ou telefone, e a falha não diz o motivo. As conversas ficam só em memória (D-06). |
 | IV. Dados só leitura | ✅ | As conexões são `mode=ro` com `query_only`. A única escrita é o JSONL de reclamações, fora dos dados da loja. |
 | V. Suposição documentada | ✅ | As suposições S-01 a S-18 da spec viram regras em código, com comentário que cita o ID, testes próprios e uma seção no README. |
@@ -298,6 +303,10 @@ reclamação entram no conjunto de avaliação dentro da própria US5.
 - **Força bruta na verificação de pedido** (testar e-mails em sequência): a spec
   não limita tentativas. Fica como limitação documentada no README, e não como
   regra nova.
+- **E-mail compartilhado entre cadastros (S-11):** quem tem acesso ao e-mail
+  abre os pedidos de qualquer cadastro que o use. Nos dados atuais não há
+  exposição de terceiro (só o cliente 11 tem pedido). Fica como limitação no
+  README.
 - **Custo e variação da avaliação real:** temperatura 0, conjunto pequeno
   (~30 casos) e juiz só para SC-004.
 
