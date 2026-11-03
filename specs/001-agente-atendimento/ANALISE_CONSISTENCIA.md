@@ -1,90 +1,65 @@
-# Análise de consistência — 001-agente-atendimento (rodada 1)
+# Análise de consistência — 001-agente-atendimento (rodada 2)
 
-**Data**: 2026-11-03 | **Base**: commit `be3e991` da branch `001-agente-atendimento`
-**Artefatos**: `spec.md` (25 FRs, 6 histórias, S-01 a S-18), `plan.md` (U-01 a U-05, D-01 a D-07, S2-01 a S2-12), `tasks.md` (T001 a T064), `constitution/constitution.md`, `constitution/stack.md` e `constitution/workflow.md`.
+**Data**: 2026-11-03 | **Base**: commit `1e1422e` da branch `001-agente-atendimento` ("Corrige divergências da análise de consistência")
+**Artefatos**: `spec.md` (25 FRs, 6 histórias, S-01 a S-18), `plan.md` (U-01 a U-05, D-01 a D-09, S2-01 a S2-12), `tasks.md` (T001 a T065), `constitution/constitution.md`, `constitution/stack.md` e `constitution/workflow.md`.
+**Rodada anterior**: rodada 1, sobre o commit `be3e991`, com veredito BLOQUEADO e 7 divergências (D1 a D7).
 
 ## 1. Veredito
 
-**BLOQUEADO: 7 divergências.**
+**BLOQUEADO: 1 divergência.**
 
-A rastreabilidade mecânica está limpa: todo FR tem tarefa e tarefa de teste, não há ID duplicado, dependência inválida, história sem fase, clarificação aberta nem decisão sem dono. As divergências estão na qualidade de alguns testes, numa brecha da trava do text-to-SQL contra o princípio II, numa ambiguidade do plan sobre o formato dos valores e numa regra de suposição (S-11) que os dados não sustentam. Nenhuma exige mudar a arquitetura: todas se resolvem com ajustes pontuais no `spec.md`, no `plan.md` e no `tasks.md`.
+As 7 divergências da rodada 1 foram resolvidas. A rastreabilidade mecânica continua limpa: 25 FRs, 65 tarefas e 0 achados objetivos (sem FR sem tarefa ou sem teste, ID duplicado, dependência inválida, história sem fase, clarificação aberta nem decisão sem dono). Resta uma divergência nova (N1), que nasce do encontro de duas correções desta rodada (D-08 e D-09) e se resolve com um ajuste pontual no `plan.md` e em T030/T035.
 
-| # | Tipo | Onde | Severidade |
+## 2. Situação das divergências da rodada 1
+
+| # | Divergência | Situação | Evidência da correção |
 |---|---|---|---|
-| D1 | Desvio não registrado (princípio II) | plan S2-05; tasks T027, T034 | alta |
-| D2 | Contradição entre artefatos | plan S2-02 × modelo de dados de `v_products`; tasks T030, T046 | média |
-| D3 | Contradição spec × dados × teste | spec S-11; tasks T038 | média |
-| D4 | Desvio da Definition of Done (conjunto de avaliação) | tasks T051; spec US4-4, US2-8 | média |
-| D5 | Teste insuficiente | FR-009 / spec US2-5; tasks T029 | baixa |
-| D6 | Trava sem teste | plan S2-05 (tempo-limite); tasks T027, T034 | baixa |
-| D7 | Ferramenta sem teste próprio (Definition of Done) | `get_policy`; tasks T017, T023 | baixa |
+| D1 | SQL do modelo podia fazer conta de dinheiro (princípio II) | **Resolvida** | Decisão D-08 (decidida pelo usuário): na lista do `SELECT`, inclusive em subconsultas e CTEs, só colunas puras, `*`, `COUNT`, `MIN` e `MAX`. S2-05 define as expressões permitidas no `WHERE`/`ORDER BY`/`GROUP BY`, sem aritmética. T027 recusa `final_price / 10`, `list_price * 0.85`, `pix_price - 50`, `SUM`, `AVG` e `ROUND`, com ou sem alias. T034 implementa a regra. A "Checagem de Constituição" do princípio II cita D-08. |
+| D2 | Formato dos valores de `query_catalog` e ancoragem | **Resolvida**, com a ressalva de N1 | Decisão D-09: o SQL continua numérico e a ferramenta formata as colunas de dinheiro da saída. S2-02, a tabela de ferramentas, SC-002 (comparação literal, sem normalização), T030, T035 e T046 estão alinhados. |
+| D3 | S-11 não valia para os dados | **Resolvida** | S-11 reescrita (o par pedido + e-mail é a prova; e-mail compartilhado dá acesso aos pedidos dos dois cadastros; nos dados só o 11 tem pedido). T038 testa o que dá para verificar (o e-mail compartilhado abre o pedido 10 e nenhum outro, com só o primeiro nome). O risco consta em "Riscos" no plan e nas limitações de T058. |
+| D4 | Conjunto de avaliação incompleto | **Resolvida** | T051 passa a ter pelo menos um caso por tipo de pergunta, incluindo a categoria sem produtos (S-10, US2 cenário 8), o pedido de cancelar ou alterar um pedido (US4 cenário 4, FR-019, SC-004) e o caso pedido A → pedido B (FR-015). |
+| D5 | Alternativas do descontinuado sem teste | **Resolvida** | FR-009 e US2 cenário 6 deixam explícito que todo indisponível (sem estoque, descontinuado ou em breve) recebe alternativas. A tabela de ferramentas do plan acompanha a mudança. T029 exige motivo próprio e 3 alternativas disponíveis para 96, 136 e 130. |
+| D6 | Tempo-limite sem teste | **Resolvida** | S2-05 torna o limite configurável. T030 interrompe uma consulta pesada com o limite baixo, exige erro em texto e que a ferramenta continue respondendo. |
+| D7 | `get_policy` sem teste da ferramenta | **Resolvida** | T065 (`tests/tools/test_policy_tool.py`) testa tópicos válidos, tópico fora da lista, notas S-03/S-14/S-16 e os contatos de `sobre_loja` (S-01, S-02). T023 passa a depender de T065. |
 
-## 2. Requisitos sem cobertura (Fases 1.1 e 1.3)
+As observações da rodada 1 também foram tratadas: a garantia legal entrou em S-14, junto com a base da troca por defeito (manual 4.2 e 8.1); "nº 8" entrou em T038; o aviso de estimativa entrou em T039; o caso pedido A → pedido B entrou em T051.
 
-Nenhum FR sem tarefa e nenhum FR sem tarefa de teste: o script de rastreabilidade (`rastrear.sh`) encontrou 25 FRs e 64 tarefas, com 0 achados objetivos. Na amostragem da qualidade dos testes:
+## 3. Requisitos sem cobertura (Fases 1.1 e 1.3)
 
-- **D5. FR-009 / US2 cenário 5 (alternativas para o descontinuado) [TESTE INSUFICIENTE].** FR-009 diz "Para os indisponíveis, DEVE sugerir alternativas semelhantes disponíveis", e o cenário 5 da História 2 exige que o descontinuado venha com "modelos equivalentes disponíveis, mesmo que o cadastro ainda mostre unidades em estoque". T029 só testa as alternativas no produto 96 (ativo sem estoque); para o 136 verifica apenas que "aparece como fora do catálogo", e para o 130 apenas que aparece "como em breve". O cenário principal do caso de borda S-07 (descontinuado com estoque, onde a falha mais provável é tratar o produto como disponível e não sugerir nada) fica sem teste. Ajuste sugerido em T029: exigir alternativas disponíveis da mesma categoria também para o 136 e decidir, de forma explícita na spec, se o "em breve" (130) também recebe alternativas.
+Nenhum. Todo FR tem tarefa e tarefa de teste. Na amostragem de qualidade, os cenários alterados nesta rodada (FR-009 e US2 cenários 5 e 6; FR-015; FR-019; S-10; S-11) têm teste que cobre o Dado/Quando/Então, e não só a citação do ID.
 
-Pontos amostrados e considerados cobertos: FR-006/FR-007/FR-008 (T025, T026, T028, T029, com valores conferidos contra os CSVs: 95 → R$ 2.199,00, PIX R$ 2.089,05, 12x de R$ 183,25; 90 → 18% ativo, "Desconto Exclusivo"); FR-011/FR-012 (T038: mesma resposta `not_found` para e-mail errado e pedido inexistente); FR-013 (T006, T027, T030, T038, T039); FR-020/FR-021 (T016, T018, T052); FR-022 (T007, T008).
+## 4. Tarefas órfãs (Fase 1.2)
 
-## 3. Tarefas órfãs (Fase 1.2)
+Nenhuma. T065 tem `[US1]` e FRs citados. As tarefas de setup, fundação e polimento continuam rastreando a decisões do plan, ao FR-025, ao SC-005 ou aos gates de `constitution/workflow.md`.
 
-Nenhuma. As 16 tarefas sem `[USn]` nem FR citado (T001 a T003, T009 a T015, T058 a T060, T062 a T064) rastreiam a decisões do `plan.md` (U-01, D-01, D-06, S2-02, S2-03, S2-06, S2-07, S2-09, S2-10), ao FR-025, ao SC-005 ou aos gates e à checagem de segurança de `constitution/workflow.md`.
+## 5. Divergências de constituição e decisões sem dono (Fase 2)
 
-## 4. Divergências de constituição e decisões sem dono (Fase 2)
+Nenhuma. D-08 e D-09 estão na tabela "Decisões técnicas" com "Decidida por: usuário", e o cabeçalho do plan registra a revisão. A stack segue `constitution/stack.md`, a spec continua sem exceções, e o princípio II está agora garantido também para o SQL gerado.
 
-Stack: o plan segue `constitution/stack.md` (Python 3.11+, `uv`, LangChain/LangGraph, Claude via API da Anthropic, SQLite gerado dos CSVs e só leitura, PDF como fonte das políticas, CLI, `ruff` e `pytest`). As dependências extras estão justificadas (princípio VII). Todas as decisões da tabela "Decisões técnicas" têm "Decidida por". A spec declara "Sem exceções", e o plan não introduz desvio de stack.
+## 6. Contradições entre artefatos (Fase 3)
 
-- **D1. O SQL escrito pelo modelo pode fazer conta de dinheiro [DESVIO NÃO REGISTRADO, princípio II].**
-  - Princípio II (INEGOCIÁVEL): "Preço final, desconto do PIX, aplicação de promoção, parcelamento e qualquer outra conta de dinheiro são calculados de forma determinística em código [...]. O modelo apresenta o resultado; ele não faz a conta."
-  - plan S2-05 limita a consulta a "uma única instrução `SELECT`, só as visões permitidas, sem `PRAGMA`/`ATTACH` nem funções fora da lista". Operadores aritméticos não são funções: `SELECT name, final_price / 10 AS parcela FROM v_products` ou `SELECT list_price * 0.85 ...` passam na validação descrita. A fórmula é do modelo, e o resultado contorna as faixas de FR-008 e a regra de não acumular PIX com promoção (FR-006). Agregações que geram valor novo (`SUM`, `AVG`) caem no mesmo caso se estiverem na lista de funções; o plan não diz quais funções a lista contém.
-  - A verificação de ancoragem de SC-002 (plan, "Avaliação"; T046) não pega o caso, porque o valor derivado aparece numa saída de ferramenta (`query_catalog`).
-  - T027 testa comandos de escrita, várias instruções, tabelas e funções fora da lista, mas não expressões aritméticas sobre colunas de dinheiro. A "Checagem de Constituição" do plan marca o princípio II como ✅ sem tratar o SQL gerado.
-  - Ajuste sugerido: no plan S2-05, proibir aritmética e agregações que produzam novos valores sobre `list_price`, `final_price`, `pix_price` e `installment_value` (mantendo `MIN`/`MAX`, `ORDER BY` e comparações, necessários para "o mais barato" e "até R$ 1.000"), ou proibir expressões calculadas na lista de seleção; incluir o caso em T027 e T034.
+- **N1. Valores de `MIN`/`MAX` e colunas com alias ficam sem formatação, e a ancoragem literal de SC-002 passa a reprovar respostas corretas.**
+  - plan D-08 e S2-05 permitem `MIN` e `MAX` na lista do `SELECT`, e T027 aceita `MIN(final_price)` e `MAX(final_price)`. O próprio plan usa esse caso para justificar o SQL (D-03: "o mais barato de cada categoria"). D-08 também não proíbe alias em coluna pura (T027 trata alias só nas expressões recusadas).
+  - plan S2-02 e T030 formatam a saída pelo nome da coluna: "formata as colunas `list_price`, `final_price`, `pix_price` e `installment_value` da saída" e "as demais colunas ficam como estão". Uma coluna de resultado chamada `MIN(final_price)`, `cheapest` ou `preco` (`SELECT final_price AS preco`) não tem um desses nomes e volta como número cru, por exemplo `1967.18`.
+  - plan SC-002 diz que "todas as ferramentas formatam o dinheiro da mesma forma (S2-02, D-09)" e que "a comparação é literal, sem normalização"; T046 exige texto exato. Diante de um número cru, o modelo formata o valor por conta própria ("R$ 1.967,18"), o que contraria S2-02 ("Todas as ferramentas devolvem os valores já formatados"), e a ancoragem reprova uma resposta correta.
+  - Ajuste sugerido (uma das opções, a registrar no plan): (a) formatar pela coluna de origem, e não pelo nome do resultado, o que cobre `MIN`/`MAX` sobre colunas de dinheiro e alias (o `sqlglot` permite resolver a origem de cada expressão do `SELECT`); ou (b) proibir alias sobre colunas de dinheiro e exigir que `MIN`/`MAX` de dinheiro usem alias igual ao nome da coluna. Nos dois casos, incluir em T030 uma consulta com `MIN(final_price)` agrupada por categoria e uma com alias, conferindo a saída formatada.
 
-- **D4. O conjunto de avaliação não cobre todos os tipos de pergunta da feature [desvio da Definition of Done de `workflow.md`].**
-  - `workflow.md`: "O conjunto fixo de perguntas de avaliação cobre cada tipo de pergunta que a feature trata, com a ferramenta e o desfecho esperados."
-  - T051 lista os casos das US1 a US4, e T056 acrescenta os de reclamação. Ficam de fora: o pedido para cancelar ou alterar um pedido (US4 cenário 4, FR-019), que também entra na meta de SC-004 ("100% das perguntas fora do escopo"); e a busca por categoria sem produto cadastrado (US2 cenário 8, S-10, sopros e cordas orquestrais).
-  - Ajuste sugerido: acrescentar os dois casos à lista de T051.
+## 7. Pontos de atenção pedidos para esta feature
 
-- **D6. O tempo-limite da consulta não tem teste [Definition of Done de `workflow.md`, item de regra/trava testada].** plan S2-05 inclui "um tempo-limite por `progress_handler`", implementado em T034, mas nenhuma tarefa de teste o verifica (T027 cobre só a validação sintática). Ajuste sugerido: incluir em T027 ou T030 uma consulta que estoure o limite (ex.: CTE recursiva) e devolva erro em texto, sem travar a ferramenta.
+- **(a) Todo FR com tarefa de teste:** atendido (25/25), com a qualidade dos testes revisada nas tarefas alteradas.
+- **(b) Verificação de identidade e isolamento dos dados de clientes:** atendidos. O arquivo de clientes não é aberto pela conexão do SQL (D-04, T006, T030). `get_order_status` exige pedido e e-mail em toda chamada e devolve só o primeiro nome (T038). A falha é indistinguível (FR-012, T038). Uma verificação que falha não deixa dado no thread (T039). O limite do e-mail compartilhado está documentado (S-11).
+- **(c) Regras de preço em código e testadas:** atendidas em `rules/pricing.py` e `rules/installments.py` (T025, T026, T028), e o SQL do modelo não gera valor novo (D-08, T027). Ressalva de apresentação: N1.
+- **(d) Travas do text-to-SQL:** atendidas. Somente leitura (`mode=ro`, `query_only`, T006, T012), uma única instrução `SELECT`, `LIMIT` de no máximo 20, só `v_products` e `v_categories`, lista fechada de expressões, tempo-limite testado (T027, T030) e arquivo separado como segunda camada (D-04).
 
-- **D7. `get_policy` não tem teste da ferramenta [Definition of Done de `workflow.md`: "Toda ferramenta que o agente pode chamar tem teste da ferramenta em si, sem o modelo"].** T017 testa a extração do PDF (`data/policies.py`) em `tests/unit/test_policies.py`; T023 implementa `tools/policies.py` (`get_policy`, com `topic` restrito) e depende só de T021, sem tarefa de teste própria. Todas as outras ferramentas têm teste em `tests/tools/` (T018, T029, T030, T038, T052). Ajuste sugerido: uma tarefa de teste para `get_policy` (tópicos válidos, tópico fora da lista e notas de interpretação na saída) da qual T023 dependa, ou a indicação explícita em T017 de que o teste é feito pela ferramenta.
+## 8. Observações (não bloqueantes)
 
-Decisões sem dono: nenhuma.
+- **FR-005 ("listar só produtos disponíveis").** Em `query_catalog`, o filtro `availability = 'available'` continua dependendo do SQL do modelo. A garantia vem do prompt e dos casos de busca da avaliação (T051), o que é coerente com D-07.
+- **Força bruta na verificação** e **e-mail compartilhado (S-11)**: limitações registradas no plan ("Riscos") e em T058. Não contrariam a spec.
+- **Funções permitidas no `WHERE`** (`lower`, `upper`, `trim`): T027 testa as recusas na lista do `SELECT`, mas não que essas três funções sejam aceitas no `WHERE`. Vale incluir um caso ao implementar T027.
+- **SC-004** continua sendo o único critério julgado por modelo (D-07, S2-11), registrado e justificado no plan.
 
-## 5. Contradições entre artefatos (Fase 3)
-
-- **D2. Formato dos valores devolvidos por `query_catalog`.**
-  - plan S2-02: "As ferramentas devolvem os valores já formatados", e o plan, "Resumo": "o modelo só apresenta valores que chegam formatados pelas ferramentas".
-  - plan, modelo de dados de `v_products`, e T030 (`final_price <= 1000`) exigem colunas numéricas, e `query_catalog` devolve "até 20 linhas" da visão. Nenhuma coluna formatada é prevista, então o modelo recebe `2089.05` e escreve "R$ 2.089,05".
-  - T046 define a ancoragem como "todo `R$` da resposta aparece numa saída de ferramenta do turno" sem dizer como "R$ 2.089,05" casa com `2089.05`. Sem essa regra, ou SC-002 reprova respostas corretas, ou a normalização fica implícita no código (princípio V).
-  - Ajuste sugerido: no plan, ou acrescentar colunas formatadas à visão (ou formatar a saída de `query_catalog` na ferramenta), ou registrar que `query_catalog` devolve números e que a ancoragem normaliza os dois formatos; refletir a escolha em T035 e T046.
-
-- **D3. A regra de S-11 não vale para os dados e T038 não tem como demonstrá-la.**
-  - spec S-11: "o pedido aponta para um cliente só, então o e-mail repetido não dá acesso ao pedido do outro". T038: "o e-mail repetido dos clientes 11 e 43 não abre o pedido do outro (S-11)".
-  - Nos CSVs, só o cliente 11 tem pedido (o 10); o cliente 43 não tem nenhum. Como a verificação compara o e-mail informado com o e-mail do titular do pedido (FR-011, plan D-04), `bruno.martins@jmail.com` abre o pedido 10 para quem conhece esse e-mail, inclusive o titular do cadastro 43. A verificação identifica quem tem acesso ao e-mail, não a pessoa do cadastro. O teste descrito em T038 é vazio (não há "pedido do outro" a negar) ou contraria o desenho.
-  - Ajuste sugerido: reescrever S-11 com a regra real (o par pedido + e-mail é a prova aceita; e-mail compartilhado entre cadastros dá acesso aos pedidos de qualquer um deles; nos dados atuais só o 11 tem pedido, então não há exposição de terceiro) e registrar o risco nas limitações do README; ajustar T038 para testar o que é verificável (o pedido 10 abre com o e-mail compartilhado e com nenhum outro; a saída traz só o primeiro nome).
-
-## 6. Pontos de atenção pedidos para esta rodada
-
-- **(a) Todo FR com tarefa de teste:** atendido no nível de rastreabilidade (25/25). Qualidade: ver D5 e D7.
-- **(b) Verificação de identidade e isolamento:** atendidos no desenho. O modelo não abre o arquivo de clientes (D-04, T006, T030); `get_order_status` exige pedido e e-mail em toda chamada e devolve só o primeiro nome (T038); a falha é indistinguível (T038, FR-012); verificação que falha não deixa dado no thread (T039). Pendência: D3.
-- **(c) Regras de preço em código e testadas:** atendidas em `rules/pricing.py` e `rules/installments.py` (T025, T026, T028), com a não cumulatividade PIX × promoção e as faixas da seção 3.1 conferidas contra o manual (3.1 e 6.2). Pendências: D1 (conta feita pelo SQL do modelo) e D2 (formato e ancoragem).
-- **(d) Travas do text-to-SQL:** somente leitura (`mode=ro`, `query_only`, T006 e T012), SELECT único, `LIMIT` ≤ 20 e só `v_products`/`v_categories` (T027, T030), mais o arquivo separado como segunda camada (D-04). Pendências: D1 (aritmética) e D6 (tempo-limite sem teste).
-
-## 7. Observações (não bloqueantes)
-
-- **FR-015.** A spec diz "o agente pede a verificação de novo"; o plan garante a verificação por pedido em código (ferramenta sem estado) e manda o prompt confirmar o e-mail (T038, T039). A leitura é aceitável quanto ao dado: nenhum pedido abre sem o par certo. Falta um caso de avaliação explícito "verificado no pedido A, pergunta pelo pedido B"; o item "um pedido verificado e outro não" de T051 pode ser escrito assim.
-- **Data de referência da garantia legal.** O manual (8.1) conta os 90 dias "a partir da data de recebimento pelo cliente"; T037 usa a previsão de entrega, estendendo a regra de S-14, escrita para o arrependimento. A troca por defeito a partir da data do pedido segue o manual (4.2, "após a compra"). Convém citar a garantia em S-14 para o princípio V ficar explícito.
-- **FR-005 ("listar só produtos disponíveis").** Em `query_catalog`, o filtro `availability = 'available'` depende do SQL do modelo; T030 testa uma consulta escrita pelo próprio teste. A garantia real vem do prompt e do caso "busca até R$ 1.000" da avaliação, o que é coerente com D-07.
-- **Força bruta na verificação.** Sem limite de tentativas, registrado como limitação no plan ("Riscos") e em T058. Não contraria a spec.
-- **Formatos de número de pedido.** A spec cita "nº 8" entre os casos de borda; T038 lista "#8", "pedido 8" e "8".
-- **FR-016 ("dizendo que é uma estimativa").** Nenhum teste confere o aviso de estimativa; T039 pode incluí-lo na regra do prompt.
-- **SC-004** é o único critério julgado por modelo (D-07, S2-11), registrado e justificado no plan.
-
-## 8. Limitações da análise
+## 9. Limitações da análise
 
 - A análise lê os artefatos e os dados; não executa código (não há código nesta branch).
-- O texto do manual foi conferido por extração automática do PDF (`pypdf`), suficiente para as seções 1, 3, 4, 6, 7 e 8; tabelas com quebra de linha não foram conferidas célula a célula.
+- O texto do manual foi conferido por extração automática do PDF (`pypdf`) nas seções 1, 3, 4, 6, 7 e 8; tabelas com quebra de linha não foram conferidas célula a célula.
 - `constitution/governance.md` não foi lido, por escopo desta etapa.
