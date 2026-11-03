@@ -135,7 +135,8 @@ dados e com as regras de preço calculadas à parte.
    em estoque.
 6. **Dado** um produto marcado como lançamento em breve, **Quando** o cliente
    pergunta por ele, **Então** o agente informa que ele ainda não está à venda,
-   sem confirmar disponibilidade.
+   sem confirmar disponibilidade, e sugere alternativas semelhantes
+   disponíveis.
 7. **Dado** um produto com uma promoção encerrada, **Quando** o cliente pergunta
    por aquela promoção, **Então** o agente informa com transparência que ela não
    está mais vigente e apresenta o preço atual.
@@ -328,8 +329,9 @@ o resultado esperado e o obtido.
   só um produto ativo com estoque maior que zero está disponível; um ativo sem
   estoque está temporariamente indisponível; um descontinuado está fora do
   catálogo, mesmo com estoque; um lançamento em breve ainda não está à venda,
-  mesmo com estoque. Para os indisponíveis, DEVE sugerir alternativas
-  semelhantes disponíveis. *(História 2)*
+  mesmo com estoque. Para todo indisponível, qualquer que seja o motivo (sem
+  estoque, descontinuado ou em breve), DEVE sugerir alternativas semelhantes
+  disponíveis. *(História 2)*
 - **FR-010**: O agente DEVE considerar vigente só a promoção marcada como ativa
   e, quando perguntado sobre uma promoção inativa, dizer que ela não está mais
   vigente e mostrar o preço atual. *(História 2)*
@@ -451,10 +453,10 @@ Inconsistências e lacunas dos dados, com a regra adotada:
 | S-08 | O produto 96 está ativo, com estoque zero. | Temporariamente indisponível, com sugestão de alternativas. |
 | S-09 | As descrições dos baixos 135 e 136 citam outros modelos (Fender Jazz Bass, Precision). | O agente identifica o produto pelo nome e pelas características, e não repete a descrição desses dois como se fosse do modelo. |
 | S-10 | As categorias de sopros (madeiras e metais) e de cordas orquestrais não têm produtos, embora o manual diga que a loja trabalha com elas. | O agente diz que no momento não há opções no catálogo e indica os contatos da loja. |
-| S-11 | Os clientes 11 e 43 têm o mesmo e-mail (`bruno.martins@jmail.com`). | A verificação usa número do pedido e e-mail juntos; o pedido aponta para um cliente só, então o e-mail repetido não dá acesso ao pedido do outro. |
+| S-11 | Os clientes 11 e 43 têm o mesmo e-mail (`bruno.martins@jmail.com`). | A prova aceita é o par número do pedido + e-mail do titular. Um e-mail compartilhado entre cadastros dá acesso aos pedidos de qualquer um deles, porque a verificação identifica quem tem acesso ao e-mail, não a pessoa do cadastro. Nos dados atuais só o cliente 11 tem pedido (o 10), então não há exposição de terceiro. O risco fica registrado nas limitações do README. |
 | S-12 | O pedido 8 está "enviado", com previsão de entrega em 2026-02-28, já vencida. | O agente informa o status e o rastreio, diz que a previsão passou e oferece registrar uma reclamação. |
 | S-13 | As promoções têm só o indicador de ativa, sem datas de início e fim. | Ativa = vigente hoje. Inativa = encerrada. |
-| S-14 | O direito de arrependimento vale só para compra online, e os pedidos não registram o canal nem a data real de entrega. | O agente pergunta o canal e usa a previsão de entrega como data de recebimento, avisando que é uma estimativa. |
+| S-14 | O direito de arrependimento vale só para compra online, e os pedidos não registram o canal nem a data real de entrega. | O agente pergunta o canal e usa a previsão de entrega como data de recebimento, avisando que é uma estimativa. A mesma data vale para os 90 dias da garantia legal, que o manual (8.1) também conta a partir do recebimento. A troca por defeito conta da data do pedido, como diz o manual (4.2). |
 | S-15 | O manual não traz o calendário de feriados. | O agente diz que a loja fecha nos feriados, mas não afirma se uma data específica é feriado; a pergunta "está aberto agora?" considera só o dia da semana e a hora. |
 | S-16 | O manual sugere indicar lojas parceiras para acessórios, mas não lista nenhuma. | O agente não indica lojas parceiras; só explica o escopo e oferece ajuda com instrumentos. |
 | S-17 | O cliente 27 tem o telefone (67) 99999-0000, com cara de valor fictício. | Sem efeito neste ciclo: a verificação usa e-mail, não telefone. Fica registrado como dado suspeito. |
