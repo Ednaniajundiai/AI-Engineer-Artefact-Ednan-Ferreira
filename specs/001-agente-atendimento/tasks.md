@@ -149,15 +149,15 @@ história, ao fechar o checkpoint.
 
 ### Testes para a História 6 ⚠️
 
-- [ ] T046 [P] [US6] Teste das verificações em `tests/unit/test_eval_checks.py`: roteamento (a ferramenta esperada foi chamada; `none` quando nenhuma); ancoragem (todo `R$` da resposta aparece como texto exato numa saída de ferramenta do turno, inclusive nas linhas formatadas de `query_catalog`; um valor inventado ou recalculado reprova; plan D-09); vazamento (o e-mail, o rastreio ou o total de outro pedido reprovam); juiz de SC-004 simulado (FR-023).
-- [ ] T047 [P] [US6] Teste da leitura dos casos em `tests/unit/test_eval_cases.py`: o YAML de uma ou várias mensagens é lido; os valores esperados são calculados pelas regras na hora da avaliação, sem números fixos à mão; um caso inválido gera um erro claro (FR-023, FR-024).
+- [x] T046 [P] [US6] Teste das verificações em `tests/unit/test_eval_checks.py`: roteamento (a ferramenta esperada foi chamada; `none` quando nenhuma); ancoragem (todo `R$` da resposta aparece como texto exato numa saída de ferramenta do turno, inclusive nas linhas formatadas de `query_catalog`; um valor inventado ou recalculado reprova; plan D-09); vazamento (o e-mail, o rastreio ou o total de outro pedido reprovam); juiz de SC-004 simulado (FR-023).
+- [x] T047 [P] [US6] Teste da leitura dos casos em `tests/unit/test_eval_cases.py`: o YAML de uma ou várias mensagens é lido; os valores esperados são calculados pelas regras na hora da avaliação, sem números fixos à mão; um caso inválido gera um erro claro (FR-023, FR-024).
 
 ### Implementação da História 6
 
-- [ ] T048 [P] [US6] Implementar `src/emporio/evaluation/cases.py` (depende de T047).
-- [ ] T049 [P] [US6] Implementar `src/emporio/evaluation/checks.py`, com o juiz de SC-004 usando `JUDGE_MODEL_NAME` e uma rubrica de sim/não (depende de T046).
-- [ ] T050 [US6] Implementar `src/emporio/evaluation/runner.py` e o comando `emporio-eval`: roda cada caso num thread novo, junta as chamadas de ferramenta e as respostas e grava `evals/reports/AAAA-MM-DD.md` com o resultado por caso e os totais de SC-001 a SC-004 (depende de T048 e T049).
-- [ ] T051 [US6] Escrever `evals/cases.yaml` com cerca de 30 casos, ao menos um por tipo de pergunta das US1 a US4: horário, endereço, cada política e o arrependimento; os preços de 95, 90 e 96; a busca até R$ 1.000; o 136 e o 130, com alternativas; uma promoção encerrada; a busca por uma categoria sem produtos (sopros ou cordas orquestrais, S-10, US2 cenário 8); um pedido verificado; uma verificação que falha; o cliente verificado no pedido A que pergunta pelo pedido B (FR-015); dados de outro cliente; um pedido para cancelar ou alterar um pedido (US4 cenário 4, FR-019, conta para SC-004); uma tentativa de mudar as instruções; acessórios; e um assunto alheio (FR-005, FR-015, FR-019) (depende de T050).
+- [x] T048 [P] [US6] Implementar `src/emporio/evaluation/cases.py` (depende de T047).
+- [x] T049 [P] [US6] Implementar `src/emporio/evaluation/checks.py`, com o juiz de SC-004 usando `JUDGE_MODEL_NAME` e uma rubrica de sim/não (depende de T046).
+- [x] T050 [US6] Implementar `src/emporio/evaluation/runner.py` e o comando `emporio-eval`: roda cada caso num thread novo, junta as chamadas de ferramenta e as respostas e grava `evals/reports/AAAA-MM-DD.md` com o resultado por caso e os totais de SC-001 a SC-004 (depende de T048 e T049).
+- [x] T051 [US6] Escrever `evals/cases.yaml` com cerca de 30 casos, ao menos um por tipo de pergunta das US1 a US4: horário, endereço, cada política e o arrependimento; os preços de 95, 90 e 96; a busca até R$ 1.000; o 136 e o 130, com alternativas; uma promoção encerrada; a busca por uma categoria sem produtos (sopros ou cordas orquestrais, S-10, US2 cenário 8); um pedido verificado; uma verificação que falha; o cliente verificado no pedido A que pergunta pelo pedido B (FR-015); dados de outro cliente; um pedido para cancelar ou alterar um pedido (US4 cenário 4, FR-019, conta para SC-004); uma tentativa de mudar as instruções; acessórios; e um assunto alheio (FR-005, FR-015, FR-019) (depende de T050).
 
 **Checkpoint**: `emporio-eval` roda de ponta a ponta. Rodar os gates e commitar a US6.
 

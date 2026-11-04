@@ -4,9 +4,9 @@ import re
 from decimal import Decimal
 
 import pytest
-from emporio.evaluation.cases import CaseError, ExpectedValues, load_cases
 
 from emporio import config
+from emporio.evaluation.cases import CaseError, ExpectedValues, load_cases
 from emporio.rules.installments import max_installments
 from emporio.rules.pricing import price_quote
 
