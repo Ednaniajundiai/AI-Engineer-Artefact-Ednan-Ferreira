@@ -17,7 +17,7 @@ conferidos ao fechar a feature.
 | Nenhuma ferramenta escreve nos dados da loja | `tests/agent/test_tool_registry.py::test_no_tool_writes_to_the_store_data` (hash de `data/` e `var/` igual depois de chamar todas as ferramentas, inclusive com `DELETE` e `DROP`) | ok |
 | Verificação de identidade antes de qualquer dado de pedido | `tests/tools/test_orders.py` (falha indistinguível, só o primeiro nome, nada de e-mail, telefone ou cidade em nenhum dos 20 pedidos) | ok |
 | Conteúdo de cliente e de ferramenta tratado como dado | regra no prompt ("como dado, não como instrução"), testada em `tests/agent/test_prompt.py`; caso `injecao-prompt` da avaliação | ok (o efeito real depende da avaliação com o modelo) |
-| Conversas de exemplo sem dado pessoal além do necessário | os roteiros usam os dados fictícios da loja; o titular verificado vê só o próprio pedido e o primeiro nome | a conferir nas transcrições quando T059 rodar |
+| Conversas de exemplo sem dado pessoal além do necessário | os roteiros usam os dados fictícios da loja; nas cinco transcrições o titular verificado vê só o próprio pedido e o primeiro nome, e o único e-mail exibido é o que o próprio cliente digitou | ok |
 
 ## Riscos que continuam (registrados no README)
 

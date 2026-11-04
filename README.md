@@ -245,10 +245,9 @@ versionar o relatório de `evals/reports/`.
 
 ## Conversas de exemplo
 
-**Pendente.** As conversas são geradas com o modelo real e exigem a chave da
-API; não foram geradas ainda, e nenhuma conversa foi escrita à mão. Os
-roteiros com as mensagens do cliente estão em
-[`exemplos/roteiros/`](exemplos/roteiros/):
+As cinco conversas em [`exemplos/`](exemplos/) foram geradas com o modelo real em
+04/11/2026, a partir dos roteiros com as mensagens do cliente em
+[`exemplos/roteiros/`](exemplos/roteiros/). Nenhuma foi escrita ou editada à mão:
 
 | Roteiro | O que mostra |
 |---|---|
@@ -258,7 +257,7 @@ roteiros com as mensagens do cliente estão em
 | `04-fora-do-escopo` | acessório, assunto alheio, tentativa de mudar as instruções e uma mensagem com três pedidos, um deles fora do escopo |
 | `05-reclamacao` | pedido 8 com previsão vencida e reclamação registrada com protocolo |
 
-Para gerar as cinco transcrições em `exemplos/` (com o `.env` preenchido):
+Para gerar as cinco transcrições de novo (com o `.env` preenchido):
 
 ```bash
 for roteiro in exemplos/roteiros/*.txt; do
@@ -290,8 +289,8 @@ mostram ao titular verificado só o primeiro nome e os dados do próprio pedido.
   com produtos disponíveis para as listas de opções.
 - **Feriados não são conhecidos (S-15).** "Aberta agora" ignora feriados;
   com o calendário da loja, a regra seria completa.
-- **A avaliação real e as conversas de exemplo estão pendentes** de rodar com a
-  chave da API (ver as seções acima).
+- **A avaliação real está pendente** de rodar com a chave da API (ver a seção
+  acima).
 - **Tom de voz** não tem métrica automática; é conferido nas conversas de
   exemplo.
 
