@@ -53,10 +53,10 @@ def called_tools(messages: Sequence[BaseMessage]) -> list[str]:
 
 
 def create_model() -> BaseChatModel:
-    """Modelo real da Anthropic, com temperatura 0 (plan D-05)."""
+    """Modelo real da Anthropic, com os parâmetros padrão da API (plan D-05)."""
     from langchain_anthropic import ChatAnthropic
 
-    return ChatAnthropic(model=model_name(), temperature=0)
+    return ChatAnthropic(model=model_name())
 
 
 def build_graph(

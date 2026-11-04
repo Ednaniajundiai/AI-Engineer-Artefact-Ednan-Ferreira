@@ -145,10 +145,10 @@ def check_scope_with_judge(turns: list[TurnRecord], judge: Judge) -> CheckResult
 
 
 def make_judge(model_name: str) -> Judge:
-    """Juiz real de SC-004, com temperatura 0 (plan S2-11)."""
+    """Juiz real de SC-004, com os parâmetros padrão da API (plan S2-11)."""
     from langchain_anthropic import ChatAnthropic
 
-    model = ChatAnthropic(model=model_name, temperature=0, max_tokens=10)
+    model = ChatAnthropic(model=model_name, max_tokens=10)
 
     def judge(question: str, answer: str) -> bool:
         reply = model.invoke(JUDGE_RUBRIC.format(question=question, answer=answer))

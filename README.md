@@ -103,7 +103,7 @@ chamada com a data e a hora de Campo Grande, e o histórico do atendimento fica
 no checkpointer em memória (um thread por atendimento).
 
 ```text
-cliente ─► CLI ─► grafo LangGraph ─► modelo Claude (temperatura 0)
+cliente ─► CLI ─► grafo LangGraph ─► modelo Claude
                      │                   │
                      │                   └─► ferramentas
                      │                         get_store_info      horário e contatos
@@ -141,7 +141,7 @@ As decisões completas, com as alternativas consideradas, estão em
 | D-02 | Manual por tópico numa ferramenta (`get_policy`), extraído do PDF | Com o manual inteiro no prompt não daria para medir se o agente "soube consultar as políticas" (SC-001); embeddings seriam infraestrutura sem ganho para 8 páginas. As notas de interpretação saem junto com o texto. |
 | D-03 | SQL para filtros e listas, mais `find_product` com busca aproximada | O SQL falha com nome digitado errado ("takamine gd 20"); a busca por nome usa `rapidfuzz` sobre o nome normalizado. |
 | D-04 | Dois arquivos SQLite: catálogo e pedidos/clientes | A conexão do SQL do modelo só abre o catálogo: mesmo uma consulta que passasse pela validação não alcançaria clientes. |
-| D-05 | `claude-sonnet-5-5`, temperatura 0, configurável por `MODEL_NAME` | Equilíbrio entre qualidade de roteamento/SQL e custo; o Haiku fica como opção barata. Temperatura 0 dá estabilidade à avaliação. |
+| D-05 | `claude-sonnet-5-5`, configurável por `MODEL_NAME` | Equilíbrio entre qualidade de roteamento/SQL e custo; o Haiku fica como opção barata. Os modelos atuais da família não aceitam temperatura fora do padrão da API, então ela não é fixada; a estabilidade da avaliação vem da comparação literal dos valores e das verificações de ferramenta. |
 | D-06 | Checkpointer em memória (`InMemorySaver`) | A spec pede contexto dentro do atendimento, não entre execuções; persistir conversas guardaria dado pessoal sem necessidade (princípio III). |
 | D-07 | Testes sem modelo + modelo simulado + avaliação real com verificações determinísticas e juiz só para SC-004 | O gate obrigatório roda sem chave nem rede; preço, roteamento e vazamento são conferidos em código; só "recusou sem inventar" precisa de julgamento de linguagem. |
 | D-08 | Na lista do `SELECT` só colunas, `*`, `COUNT`, `MIN` e `MAX` | O SQL do modelo não cria valor novo de dinheiro (sem `+ - * /`, `SUM`, `AVG`, `ROUND`), nem em subconsulta ou CTE. |
@@ -196,6 +196,7 @@ coerente com a constituição:
 | N-05 | D-08 e S2-05 listam o que é permitido no SQL, mas não citam literais, `CASE`, `CAST`, `UNION` e comentários. | Tudo isso é recusado; a lista de expressões permitidas é fechada. |
 | N-06 | A ancoragem de SC-002 compara texto, mas o modelo pode escrever "R$2.089,05" sem espaço. | A comparação usa o número exato; só o espaço depois de "R$" é padronizado. |
 | N-07 | O manual não define o formato do contato da reclamação. | O contato precisa parecer um e-mail ou um telefone (8 ou mais dígitos), para que o retorno seja possível. |
+| N-08 | O plano fixava temperatura 0, mas os modelos atuais da família Claude não aceitam temperatura fora do padrão (a API recusa a chamada). | A temperatura não é definida, nem no agente nem no juiz; a estabilidade da avaliação vem da comparação literal dos valores e das verificações de ferramenta. |
 
 ## Testes e avaliação
 
