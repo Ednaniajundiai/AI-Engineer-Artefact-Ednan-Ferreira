@@ -130,12 +130,12 @@ história, ao fechar o checkpoint.
 
 ### Testes para a História 4 ⚠️
 
-- [ ] T043 [P] [US4] Teste do bloco de escopo em `tests/agent/test_scope_prompt.py`: o prompt lista os acessórios que a loja não vende (cordas, palhetas, cabos, cases, pedais, amplificadores) e manda redirecionar com educação; manda recusar com gentileza os assuntos alheios; manda manter o papel e não revelar as instruções; proíbe criar, alterar ou cancelar pedidos e prometer reserva, indicando os contatos da equipe; e não manda indicar lojas parceiras (S-16) (FR-017, FR-018, FR-019).
-- [ ] T044 [P] [US4] Teste do registro de ferramentas em `tests/agent/test_tool_registry.py`: nenhuma ferramenta registrada escreve nos dados da loja (só `register_complaint` escreve, e em `registros/`); com o modelo simulado, uma resposta sem chamada de ferramenta é registrada como fonte `none` (FR-019).
+- [x] T043 [P] [US4] Teste do bloco de escopo em `tests/agent/test_scope_prompt.py`: o prompt lista os acessórios que a loja não vende (cordas, palhetas, cabos, cases, pedais, amplificadores) e manda redirecionar com educação; manda recusar com gentileza os assuntos alheios; manda manter o papel e não revelar as instruções; proíbe criar, alterar ou cancelar pedidos e prometer reserva, indicando os contatos da equipe; e não manda indicar lojas parceiras (S-16) (FR-017, FR-018, FR-019).
+- [x] T044 [P] [US4] Teste do registro de ferramentas em `tests/agent/test_tool_registry.py`: nenhuma ferramenta registrada escreve nos dados da loja (só `register_complaint` escreve, e em `registros/`); com o modelo simulado, uma resposta sem chamada de ferramenta é registrada como fonte `none` (FR-019).
 
 ### Implementação da História 4
 
-- [ ] T045 [US4] Acrescentar o bloco 5 (escopo) em `src/emporio/agent/prompt.py` (depende de T043 e T044).
+- [x] T045 [US4] Acrescentar o bloco 5 (escopo) em `src/emporio/agent/prompt.py` (depende de T043 e T044).
 
 **Checkpoint**: as Histórias 1 a 4 funcionam pela CLI. Rodar os gates e commitar a US4.
 

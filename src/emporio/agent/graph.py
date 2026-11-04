@@ -11,7 +11,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.tools import BaseTool
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
@@ -33,6 +33,21 @@ def get_tools(clock: Clock = system_clock) -> list[BaseTool]:
         *build_catalog_tools(),
         build_order_tool(clock=clock),
     ]
+
+
+def called_tools(messages: Sequence[BaseMessage]) -> list[str]:
+    """Ferramentas chamadas no último turno, ou `["none"]` se nenhuma (FR-023)."""
+    start = max(
+        (i for i, message in enumerate(messages) if isinstance(message, HumanMessage)),
+        default=0,
+    )
+    names = [
+        call["name"]
+        for message in messages[start:]
+        if isinstance(message, AIMessage)
+        for call in message.tool_calls
+    ]
+    return names or ["none"]
 
 
 def create_model() -> BaseChatModel:
