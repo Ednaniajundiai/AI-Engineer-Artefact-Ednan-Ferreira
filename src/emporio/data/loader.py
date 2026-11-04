@@ -13,9 +13,12 @@ from __future__ import annotations
 
 import csv
 import sqlite3
+from decimal import Decimal
 from pathlib import Path
 
 from emporio.data.normalize import derive_brand, normalize_name
+from emporio.rules.installments import max_installments
+from emporio.rules.pricing import PromotionRecord, active_promotion, availability, price_quote
 
 CATALOG_FILE = "catalog.sqlite"
 ORDERS_FILE = "orders.sqlite"
@@ -51,6 +54,48 @@ CREATE INDEX idx_products_category ON products (category_id);
 CREATE INDEX idx_products_name ON products (name_normalized);
 CREATE INDEX idx_promotions_product ON promotions (product_id);
 """
+
+# Tabela materializada com os valores calculados em Python pelas regras
+# testadas (princípio II). O SQL do modelo só enxerga as visões abaixo.
+CATALOG_VIEW_SCHEMA = """
+CREATE TABLE catalog_products (
+    product_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
+    category TEXT NOT NULL,
+    brand TEXT,
+    list_price REAL NOT NULL,
+    promo_name TEXT,
+    promo_discount_pct REAL,
+    final_price REAL NOT NULL,
+    pix_price REAL NOT NULL,
+    max_installments INTEGER NOT NULL,
+    installment_value REAL NOT NULL,
+    stock INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    availability TEXT NOT NULL,
+    description TEXT,
+    specs TEXT
+);
+CREATE INDEX idx_catalog_category ON catalog_products (category_id, availability);
+CREATE VIEW v_products AS
+SELECT product_id, name, category, brand, list_price, promo_name, promo_discount_pct,
+       final_price, pix_price, max_installments, installment_value, stock, status,
+       availability, description, specs
+FROM catalog_products;
+CREATE VIEW v_categories AS
+SELECT c.name AS category,
+       c.description AS description,
+       (SELECT COUNT(*) FROM catalog_products AS p
+        WHERE p.category_id = c.category_id AND p.availability = 'available')
+           AS available_products
+FROM categories AS c;
+"""
+
+# S-09: as descrições de 135 e 136 citam outros modelos. N-01: a mesma regra
+# vale para as que citam outra marca (137 cita Ibanez; 139, Pearl; 140, Tama;
+# 142, Roland; 144, Yamaha). A descrição desses produtos não é repetida.
+MISMATCHED_DESCRIPTIONS = frozenset({135, 136, 137, 139, 140, 142, 144})
 
 ORDERS_SCHEMA = """
 CREATE TABLE customers (
@@ -171,9 +216,54 @@ def _build_catalog(data_dir: Path, path: Path) -> None:
                 for r in _read(data_dir, "promotions")
             ],
         )
+        _materialize_catalog(conn)
         conn.commit()
     finally:
         conn.close()
+
+
+def _materialize_catalog(conn: sqlite3.Connection) -> None:
+    """Calcula preço final, PIX, parcelamento e disponibilidade de cada produto."""
+    conn.executescript(CATALOG_VIEW_SCHEMA)
+    promotions: dict[int, list[PromotionRecord]] = {}
+    for product_id, pct, name, active in conn.execute(
+        "SELECT product_id, discount_percent, description, is_active FROM promotions"
+    ):
+        promotions.setdefault(product_id, []).append(
+            PromotionRecord(name=name, discount_pct=Decimal(str(pct)), is_active=bool(active))
+        )
+    rows = []
+    for product in conn.execute(
+        "SELECT p.product_id, p.name, p.category_id, c.name, p.brand, p.price_brl, "
+        "p.stock_quantity, p.status, p.description, p.specs "
+        "FROM products AS p JOIN categories AS c ON c.category_id = p.category_id"
+    ).fetchall():
+        pid, name, cat_id, category, brand, price, stock, status, description, specs = product
+        promo = active_promotion(promotions.get(pid, []))
+        quote = price_quote(price, promo.discount_pct if promo else None)
+        plan = max_installments(quote.final_price)
+        rows.append(
+            {
+                "product_id": pid,
+                "name": name,
+                "category_id": cat_id,
+                "category": category,
+                "brand": brand,
+                "list_price": float(quote.list_price),
+                "promo_name": promo.name if promo else None,
+                "promo_discount_pct": float(promo.discount_pct) if promo else None,
+                "final_price": float(quote.final_price),
+                "pix_price": float(quote.pix_price),
+                "max_installments": plan.count,
+                "installment_value": float(plan.value),
+                "stock": stock,
+                "status": status,
+                "availability": availability(status, stock).value,
+                "description": None if pid in MISMATCHED_DESCRIPTIONS else description,
+                "specs": specs,
+            }
+        )
+    _insert(conn, "catalog_products", rows)
 
 
 def _build_orders(data_dir: Path, path: Path) -> None:

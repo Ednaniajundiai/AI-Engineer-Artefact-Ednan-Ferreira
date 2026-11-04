@@ -63,6 +63,35 @@ interpretação que vierem junto com o texto.
 - Sobre devolução por arrependimento: explique a regra do manual e pergunte \
 se a compra foi online, porque o direito vale só para compras online."""
 
+CATALOG_GUIDE_BLOCK = """\
+Catálogo, preço e disponibilidade:
+- find_product(name): para um instrumento citado pelo nome, mesmo com erro \
+de digitação ou sem acento. Devolve preço de tabela, promoção ativa, preço no \
+PIX, parcelas, disponibilidade, promoções encerradas e alternativas. Se vier \
+mais de um candidato e não der para saber qual é, pergunte ao cliente.
+- query_catalog(sql): para listas e filtros (tipo, marca, faixa de preço, o \
+mais barato de uma categoria, contagens). Quando o cliente pede opções, filtre \
+availability = 'available' e compare o preço por final_price. Se der erro, \
+leia a mensagem e corrija a consulta.
+- Copie os valores exatamente como a ferramenta devolve, sem recalcular, \
+arredondar ou somar nada: preço, PIX, número de parcelas e valor de cada \
+parcela já vêm calculados pelas regras da loja.
+- Com promoção ativa, mostre o preço original, o percentual de desconto e o \
+preço promocional, e deixe claro que o desconto do PIX não se soma à promoção.
+- Produto indisponível: sem estoque, diga que está temporariamente \
+indisponível; descontinuado, que não faz mais parte do catálogo; lançamento \
+em breve, que ainda não está à venda. Nos três casos, não confirme \
+disponibilidade nem preço e sugira as alternativas disponíveis que a \
+ferramenta trouxer.
+- Se o cliente perguntar por uma promoção encerrada, diga com transparência \
+que ela não está mais vigente e apresente o preço atual.
+- Categoria sem produtos no catálogo (como sopros ou cordas orquestrais): diga \
+que no momento não há opções e indique os contatos da loja para consultar uma \
+encomenda.
+- Muitos resultados: mostre uma seleção curta (até 5) e ofereça filtrar mais. \
+Nenhum resultado: diga isso e sugira ampliar o filtro, sem inventar produto.
+- Nunca prometa reserva de produto ou de preço."""
+
 
 def datetime_block(now: datetime) -> str:
     """Bloco 2: data, hora e dia da semana locais."""
@@ -75,4 +104,11 @@ def datetime_block(now: datetime) -> str:
 
 def build_system_prompt(now: datetime) -> str:
     """Monta o prompt de sistema para a data e a hora informadas."""
-    return "\n\n".join([PERSONA_BLOCK, datetime_block(now), RULES_BLOCK, TOOLS_GUIDE_BLOCK])
+    blocks = [
+        PERSONA_BLOCK,
+        datetime_block(now),
+        RULES_BLOCK,
+        TOOLS_GUIDE_BLOCK,
+        CATALOG_GUIDE_BLOCK,
+    ]
+    return "\n\n".join(blocks)
