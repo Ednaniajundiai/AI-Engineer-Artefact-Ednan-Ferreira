@@ -1,6 +1,6 @@
 # Implementation Plan: Agente de atendimento da Empório da Música
 
-**Branch**: `001-agente-atendimento` | **Data**: 2026-11-03 | **Spec**: `specs/001-agente-atendimento/spec.md` | **Status**: Aprovado em 2026-11-03 (o dono delegou a aprovação e as decisões em aberto: "pode aprovar você e seguir"); revisado em 2026-11-03 após a análise de consistência (D-08 e D-09, decididas pelo dono)
+**Branch**: `001-agente-atendimento` | **Data**: 2026-11-03 | **Spec**: `specs/001-agente-atendimento/spec.md` | **Status**: Aprovado em 2026-11-03 (o dono delegou a aprovação e as decisões em aberto: "pode aprovar você e seguir"); revisado em 2026-11-03 após a análise de consistência (D-08, D-09 e D-09a, decididas pelo dono)
 
 ## Resumo
 
@@ -41,7 +41,8 @@ atendimento fica no checkpointer do LangGraph, e a interface é uma CLI.
 | D-06 | Tipo de checkpointer | A. em memória (`InMemorySaver`), um thread por sessão da CLI; B. SQLite persistente entre execuções | A | recomendação aceita | FR-022 | baixo |
 | D-07 | Estratégia de teste e avaliação | A. testes de regras e ferramentas sem modelo, testes do grafo com um modelo simulado roteirizado e avaliação real com verificações determinísticas, usando um modelo juiz só para SC-004; B. só avaliação real; C. todo julgamento por um modelo juiz | A | recomendação aceita | FR-023, FR-024, SC-001 a SC-004 | médio |
 | D-08 | Conta de dinheiro no SQL escrito pelo modelo (princípio II) | A. na lista do `SELECT` só colunas puras, `*`, `COUNT`, `MIN` e `MAX`, sem aritmética nem outra agregação; comparações no `WHERE` e `ORDER BY` liberadas; B. proibir aritmética e `SUM`/`AVG` só sobre as colunas de dinheiro | A | usuário | FR-004, FR-006, FR-008, SC-002 | baixo |
-| D-09 | Formato dos valores devolvidos por `query_catalog` | A. o SQL continua numérico e a ferramenta formata as colunas de dinheiro da saída em `R$ 1.234,56`; B. a ferramenta devolve números e a verificação de ancoragem normaliza os formatos | A | usuário | FR-004, SC-002 | baixo |
+| D-09 | Formato dos valores devolvidos por `query_catalog` | A. o SQL continua numérico e a ferramenta formata em `R$ 1.234,56` todo valor da saída cuja coluna de origem seja de dinheiro; B. a ferramenta devolve números e a verificação de ancoragem normaliza os formatos | A | usuário | FR-004, SC-002 | baixo |
+| D-09a | Como reconhecer um valor de dinheiro na saída de `query_catalog` | A. formatar pela origem: o código resolve, com o `sqlglot`, a coluna de origem de cada expressão do `SELECT` e formata todo valor derivado de `list_price`, `final_price`, `pix_price` ou `installment_value`, com ou sem apelido, inclusive `MIN`/`MAX`; B. proibir apelido em coluna de dinheiro e exigir que `MIN`/`MAX` de dinheiro usem apelido igual ao nome da coluna | A ("Formatar pela origem") | usuário | FR-004, SC-002 | baixo |
 
 **Justificativa curta das decisões D:**
 
@@ -82,7 +83,7 @@ atendimento fica no checkpointer do LangGraph, e a interface é uma CLI.
 | ID | Decisão | Escolha |
 |---|---|---|
 | S2-01 | Nomes das ferramentas, tabelas e colunas | Em inglês, como o resto do código (`workflow.md`). O texto para o cliente fica em português. |
-| S2-02 | Dinheiro | `Decimal` com arredondamento `ROUND_HALF_UP` para centavos, formatado em `R$ 1.234,56` por uma única função. Todas as ferramentas devolvem os valores já formatados, inclusive `query_catalog`, que formata as colunas `list_price`, `final_price`, `pix_price` e `installment_value` da saída (D-09). |
+| S2-02 | Dinheiro | `Decimal` com arredondamento `ROUND_HALF_UP` para centavos, formatado em `R$ 1.234,56` por uma única função. Todas as ferramentas devolvem os valores já formatados, inclusive `query_catalog`. Nele, a formatação segue a coluna de origem, e não o nome da coluna do resultado (D-09a): o código resolve, com o `sqlglot`, a origem de cada expressão do `SELECT`, atravessando apelidos, subconsultas e CTEs e expandindo o `*`, e formata todo valor que venha de `list_price`, `final_price`, `pix_price` ou `installment_value`, inclusive o resultado de `MIN` e `MAX` sobre essas colunas. `COUNT` e as demais colunas ficam como estão. |
 | S2-03 | Fuso horário | `zoneinfo` com `America/Campo_Grande`, mais a dependência `tzdata` (necessária no Windows). O relógio é injetável nos testes. |
 | S2-04 | Extração do PDF | `pypdf`, em tempo de carga, com recorte por títulos numerados (`N.` e `N.N`). |
 | S2-05 | Validação de SQL | `sqlglot`: uma única instrução `SELECT`, só as visões permitidas, sem `PRAGMA`/`ATTACH`, e `LIMIT` imposto (máximo de 20 linhas). Na lista do `SELECT` (inclusive em subconsultas e CTEs), só colunas puras, `*` e as agregações `COUNT`, `MIN` e `MAX`: nenhum operador aritmético nem outra função (D-08). No `WHERE`, `ORDER BY` e `GROUP BY` valem colunas, literais, comparações, `AND`/`OR`/`NOT`, `IN`, `BETWEEN`, `LIKE`, `IS NULL` e as funções `lower`, `upper` e `trim`. Mais conexão `mode=ro`, `PRAGMA query_only=ON` e um tempo-limite por `progress_handler`, com o limite configurável para os testes. Os erros de validação e de tempo-limite voltam para o modelo como texto, para ele corrigir a consulta. |
@@ -155,7 +156,7 @@ para sopros e cordas orquestrais (S-10).
 | `get_store_info` | — | endereço, telefone (67) 3341-4444, WhatsApp (67) 3321-4500, e-mail sem acento, horário, se a loja está aberta agora e a próxima abertura | FR-002, FR-003, FR-021, S-01, S-02, S-15 |
 | `get_policy` | `topic` ∈ {pagamento, parcelamento, trocas_devolucoes, frete, promocoes, garantia, privacidade, atendimento, sobre_loja} | o texto das seções do manual e as notas de interpretação adotadas | FR-002, FR-008, FR-016, S-03, S-14, S-16 |
 | `find_product` | `name` | até 3 candidatos, com preços (tabela, promoção, PIX), opções de parcelamento de 1x até o máximo, disponibilidade, promoções encerradas do produto e, se indisponível por qualquer motivo (sem estoque, descontinuado ou em breve), 3 alternativas disponíveis da mesma categoria com preço próximo | FR-005 a FR-010 |
-| `query_catalog` | `sql` | até 20 linhas, com as colunas de dinheiro formatadas em `R$` (D-09), ou o erro de validação ou de tempo-limite | FR-004, FR-005 |
+| `query_catalog` | `sql` | até 20 linhas, com todo valor de dinheiro formatado em `R$`, reconhecido pela coluna de origem (D-09 e D-09a), ou o erro de validação ou de tempo-limite | FR-004, FR-005 |
 | `get_order_status` | `order_id`, `email` | `not_found` (sem detalhe) ou: primeiro nome, status em português, data, itens, total registrado, pagamento, rastreio, previsão, `forecast_overdue`, motivo do cancelamento e prazos (arrependimento a partir da previsão de entrega, troca por defeito a partir da data do pedido, garantia legal de 90 dias a partir da previsão de entrega, S-14) | FR-011 a FR-016, S-04, S-05, S-11, S-12, S-14 |
 | `register_complaint` | `name`, `contact`, `description`, `order_id` opcional | protocolo, prazo de 24 horas úteis e, fora do expediente, quando a equipe volta | FR-020, FR-021, S-18 |
 
@@ -192,7 +193,7 @@ Critérios automáticos:
 - **SC-001:** a ferramenta chamada é a esperada.
 - **SC-002:** todo valor `R$` da resposta aparece, como texto exato, em
   alguma saída de ferramenta daquele turno (verificação de ancoragem). Como
-  todas as ferramentas formatam o dinheiro da mesma forma (S2-02, D-09), a
+  todas as ferramentas formatam o dinheiro da mesma forma (S2-02, D-09, D-09a), a
   comparação é literal, sem normalização. Valores derivados pelo SQL não
   existem (D-08).
 - **SC-003:** nenhum dado de pedido ou de cliente aparece sem a verificação
