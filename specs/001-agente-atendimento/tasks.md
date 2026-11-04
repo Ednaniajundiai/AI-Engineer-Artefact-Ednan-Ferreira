@@ -18,9 +18,9 @@ história, ao fechar o checkpoint.
 
 ## Fase 1: Setup (Infraestrutura Compartilhada)
 
-- [ ] T001 Criar `pyproject.toml` com `uv`: Python >= 3.11; as dependências do plan (`langgraph`, `langchain-core`, `langchain-anthropic`, `pypdf`, `sqlglot`, `rapidfuzz`, `python-dotenv`, `pyyaml`, `tzdata`); `pytest` e `ruff` como dependências de desenvolvimento; os comandos `emporio` (CLI) e `emporio-eval`; e a configuração de `ruff` e `pytest`. Gerar o `uv.lock`.
-- [ ] T002 [P] Criar `.env.example` com `ANTHROPIC_API_KEY`, `MODEL_NAME=claude-sonnet-5-5` e `JUDGE_MODEL_NAME=claude-haiku-5-5`, e acrescentar `var/` e `registros/` ao `.gitignore`.
-- [ ] T003 [P] Criar o esqueleto do pacote `src/emporio/` (`__init__.py` em `data/`, `rules/`, `tools/`, `agent/` e `evaluation/`) e as pastas `tests/unit/`, `tests/tools/` e `tests/agent/` com o `conftest.py`.
+- [x] T001 Criar `pyproject.toml` com `uv`: Python >= 3.11; as dependências do plan (`langgraph`, `langchain-core`, `langchain-anthropic`, `pypdf`, `sqlglot`, `rapidfuzz`, `python-dotenv`, `pyyaml`, `tzdata`); `pytest` e `ruff` como dependências de desenvolvimento; os comandos `emporio` (CLI) e `emporio-eval`; e a configuração de `ruff` e `pytest`. Gerar o `uv.lock`.
+- [x] T002 [P] Criar `.env.example` com `ANTHROPIC_API_KEY`, `MODEL_NAME=claude-sonnet-5-5` e `JUDGE_MODEL_NAME=claude-haiku-5-5`, e acrescentar `var/` e `registros/` ao `.gitignore`.
+- [x] T003 [P] Criar o esqueleto do pacote `src/emporio/` (`__init__.py` em `data/`, `rules/`, `tools/`, `agent/` e `evaluation/`) e as pastas `tests/unit/`, `tests/tools/` e `tests/agent/` com o `conftest.py`.
 
 ## Fase 2: Fundação (Bloqueante)
 
