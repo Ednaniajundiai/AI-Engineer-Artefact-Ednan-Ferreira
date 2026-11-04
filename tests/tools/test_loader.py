@@ -132,3 +132,13 @@ def test_ensure_builds_only_when_missing_or_stale(tmp_path, data_dir):
     (work / "desafio_tecnico_ai_eng - products.csv").touch()
     assert ensure_databases(work, var_dir) is True
     assert ensure_databases(work, var_dir) is False
+
+
+def test_suspicious_phone_is_kept_as_is(built):
+    # S-17: o telefone (67) 99999-0000 do cliente 27 fica como está, sem efeito.
+    conn = open_orders(built)
+    try:
+        phone = conn.execute("SELECT phone FROM customers WHERE customer_id = 27").fetchone()[0]
+    finally:
+        conn.close()
+    assert phone == "(67) 99999-0000"

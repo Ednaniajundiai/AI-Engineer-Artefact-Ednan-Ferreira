@@ -83,6 +83,8 @@ SELECT product_id, name, category, brand, list_price, promo_name, promo_discount
        final_price, pix_price, max_installments, installment_value, stock, status,
        availability, description, specs
 FROM catalog_products;
+-- S-10: sopros e cordas orquestrais existem como categoria, mas sem produtos;
+-- available_products = 0 diz ao agente que não há opções no catálogo.
 CREATE VIEW v_categories AS
 SELECT c.name AS category,
        c.description AS description,
@@ -274,6 +276,8 @@ def _build_orders(data_dir: Path, path: Path) -> None:
     conn = _fresh(path)
     try:
         conn.executescript(ORDERS_SCHEMA)
+        # S-17: o telefone (67) 99999-0000 do cliente 27 parece fictício; fica como
+        # está, porque a verificação usa o e-mail e o telefone nunca sai da base.
         _insert(
             conn,
             "customers",

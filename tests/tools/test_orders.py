@@ -161,3 +161,9 @@ def test_tool_requires_both_fields(var_dir, clock):
     schema = tool.args_schema.model_json_schema()
     assert set(schema["required"]) == {"order_id", "email"}
     assert "BRAB1234567BR" in tool.invoke({"order_id": "1", "email": "pedro.oliveira@jmail.com"})
+
+
+def test_phone_is_never_accepted_as_proof_of_identity(text):
+    # S-17: a verificação usa o e-mail; o telefone (suspeito ou não) não serve de prova.
+    assert text("8", "(67) 99654-7821") == NOT_FOUND  # telefone da titular do pedido 8
+    assert text("8", "(67) 99999-0000") == NOT_FOUND  # telefone suspeito do cliente 27
