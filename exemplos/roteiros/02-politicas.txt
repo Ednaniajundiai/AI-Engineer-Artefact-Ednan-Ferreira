@@ -1,0 +1,5 @@
+Qual o endereço da loja?
+Vocês estão abertos agora?
+Se o instrumento vier com defeito, como funciona a troca?
+E vocês entregam em Cuiabá? Quanto fica o frete?
+/sair
