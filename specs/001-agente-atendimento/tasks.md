@@ -192,7 +192,7 @@ história, ao fechar o checkpoint.
 - [ ] T060 Rodar `uv run emporio-eval` com o modelo real, versionar o relatório em `evals/reports/` e registrar no `README.md` o resultado de SC-001 a SC-004 (depende de T056 e T058).
 - [x] T061 Revisar a cobertura: cada FR-001 a FR-025 do `spec.md` tem um teste rastreável, e cada S-01 a S-18 aparece no código (comentário com o ID), em teste e no README.
 - [x] T062 Checagem de segurança (`constitution/workflow.md`): nenhum segredo versionado; `.env`, `var/` e `registros/` ignorados; nenhum dado pessoal em logs, no modo `--debug` sem necessidade ou nos exemplos; as conexões dos dados da loja só para leitura.
-- [ ] T063 Conferir SC-005: clonar o repositório numa pasta limpa e seguir só o README até conversar com o agente, corrigindo o README onde travar (depende de T058).
+- [x] T063 Conferir SC-005: clonar o repositório numa pasta limpa e seguir só o README até conversar com o agente, corrigindo o README onde travar (depende de T058).
 - [ ] T064 Rodar os gates de `constitution/workflow.md`: `uv run ruff check .`, `uv run ruff format --check .` e `uv run pytest` (sem rede e sem chave); nenhum `print()` de depuração; toda variável de ambiente documentada no `.env.example` e no README.
 
 ## Dependências e Ordem de Execução
