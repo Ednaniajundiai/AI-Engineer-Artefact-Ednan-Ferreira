@@ -28,3 +28,13 @@ def make_clock(year, month, day, hour=10, minute=0):
 def clock():
     """Fábrica de relógios fixos: `clock(2025, 11, 3, 10, 30)`."""
     return make_clock
+
+
+@pytest.fixture(scope="session")
+def var_dir(tmp_path_factory) -> Path:
+    """Os dois SQLite gerados uma vez por sessão, numa pasta temporária."""
+    from emporio.data.loader import build_databases
+
+    target = tmp_path_factory.mktemp("var")
+    build_databases(DATA_DIR, target)
+    return target
