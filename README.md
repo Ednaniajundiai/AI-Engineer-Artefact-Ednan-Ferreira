@@ -343,4 +343,40 @@ Arquivos gerados em execução e fora do git: `var/` (os SQLite), `registros/`
 
 ## Uso de assistentes de código
 
-Seção a ser preenchida pelo autor.
+Usei o **Claude Code** (app desktop) em todas as etapas, dentro de um método de
+desenvolvimento orientado a especificação que mantenho num repositório próprio,
+o **ed-sdd**. A ideia central é que a especificação é a fonte de verdade: o
+código serve à spec, e não o contrário. O ciclo de cada feature é constituição,
+especificação, plano, tarefas, análise de consistência e implementação; os
+artefatos dessa feature estão em [`constitution/`](constitution/) e
+[`specs/001-agente-atendimento/`](specs/001-agente-atendimento/).
+
+**Como o trabalho foi organizado.** Cada papel rodou numa sessão separada do
+Claude Code. Uma sessão de liderança técnica traduzia meus pedidos em
+instruções e repassava achados entre as outras. Uma sessão escreveu spec, plano
+e tarefas. Outra fez a análise de consistência entre os três. Outra
+implementou, uma validou cada história de usuário e a última abriu a PR.
+Separar os papéis evita que quem implementa também aprove o próprio trabalho.
+
+**O que ficou comigo.** Discuti o desafio antes de qualquer código e tomei as
+decisões de arquitetura: LangGraph, text-to-SQL restrito ao catálogo com
+ferramentas fixas para pedidos, e o provedor. Aprovei cada etapa nos portões
+(spec, plano, PR). Resolvi as divergências que a análise apontou: foram duas
+rodadas, e uma delas mudou a forma de formatar valores em dinheiro. Também
+testei o agente à mão com o modelo real.
+
+**O que os testes manuais pegaram e a suíte automatizada não pegou:**
+
+- O modelo atual recusa temperatura fixa. Os testes usam um modelo simulado,
+  então não perceberam.
+- O agente lia o `LIMIT 5` de uma consulta como se fosse o total ("temos 5
+  ukuleles", quando eram 14).
+- No Windows, a entrada redirecionada chegava com os acentos quebrados.
+- Na avaliação real, o juiz de escopo gastava o limite de tokens raciocinando e
+  reprovava respostas corretas. Investiguei até a causa e deixei registrado em
+  vez de esconder (ver "Avaliação com o modelo real").
+
+**O que aprendi.** O assistente acelera muito a escrita de código e testes. O
+que garante a qualidade é o processo em volta: spec revisada, testes escritos
+antes, análise de consistência e, principalmente, rodar com o modelo real e ler
+as respostas.

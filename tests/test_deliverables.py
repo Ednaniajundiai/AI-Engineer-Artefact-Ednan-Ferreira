@@ -33,10 +33,11 @@ def test_readme_has_the_required_sections(readme, section):
     assert any(section in heading for heading in _headings(readme)), section
 
 
-def test_code_assistant_section_is_left_for_the_author(readme):
+def test_code_assistant_section_describes_the_workflow(readme):
     after = readme.split("## Uso de assistentes de código", 1)[1]
-    body = after.split("\n## ", 1)[0].strip()
-    assert body == "Seção a ser preenchida pelo autor."
+    body = after.split("\n## ", 1)[0]
+    assert "Claude Code" in body
+    assert "a ser preenchida" not in body
 
 
 def test_readme_has_the_run_commands(readme):
