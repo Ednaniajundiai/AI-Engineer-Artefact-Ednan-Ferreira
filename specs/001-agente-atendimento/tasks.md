@@ -28,21 +28,21 @@ história, ao fechar o checkpoint.
 
 ### Testes da Fundação
 
-- [ ] T004 [P] Teste de `money` em `tests/unit/test_money.py`: arredondamento `ROUND_HALF_UP` para centavos (569,905 → 569,91) e formatação `R$ 1.234,56` (plan S2-02, base de FR-006 e FR-008).
-- [ ] T005 [P] Teste de `normalize` em `tests/unit/test_normalize.py`: o nome normalizado remove acento, caixa, espaços e hífens; todo produto dos CSVs recebe uma marca da lista fechada (plan S2-06 e S2-07, base de FR-005).
-- [ ] T006 [P] Teste da carga em `tests/tools/test_loader.py`: gera `var/catalog.sqlite` e `var/orders.sqlite` numa pasta temporária; o arquivo do catálogo não contém as tabelas `customers`, `orders` nem `order_items`; escrever pelas conexões de leitura levanta erro; os arquivos de `data/` ficam com o hash inalterado; a carga é refeita quando um CSV é mais novo que o SQLite (FR-013, plan D-04 e S2-09).
-- [ ] T007 [P] Teste do grafo em `tests/agent/test_graph.py` com o modelo simulado: uma chamada de ferramenta seguida da resposta final; no mesmo thread, a segunda mensagem enxerga a primeira; um thread novo começa vazio (FR-022, plan D-01 e D-06).
-- [ ] T008 [P] Teste da CLI em `tests/agent/test_cli.py` com o modelo simulado e entrada roteirizada: `/nova` troca o thread, `/sair` encerra, `--transcricao` grava a conversa em markdown e `--debug` mostra o nome das ferramentas chamadas (FR-022, plan S2-10).
+- [x] T004 [P] Teste de `money` em `tests/unit/test_money.py`: arredondamento `ROUND_HALF_UP` para centavos (569,905 → 569,91) e formatação `R$ 1.234,56` (plan S2-02, base de FR-006 e FR-008).
+- [x] T005 [P] Teste de `normalize` em `tests/unit/test_normalize.py`: o nome normalizado remove acento, caixa, espaços e hífens; todo produto dos CSVs recebe uma marca da lista fechada (plan S2-06 e S2-07, base de FR-005).
+- [x] T006 [P] Teste da carga em `tests/tools/test_loader.py`: gera `var/catalog.sqlite` e `var/orders.sqlite` numa pasta temporária; o arquivo do catálogo não contém as tabelas `customers`, `orders` nem `order_items`; escrever pelas conexões de leitura levanta erro; os arquivos de `data/` ficam com o hash inalterado; a carga é refeita quando um CSV é mais novo que o SQLite (FR-013, plan D-04 e S2-09).
+- [x] T007 [P] Teste do grafo em `tests/agent/test_graph.py` com o modelo simulado: uma chamada de ferramenta seguida da resposta final; no mesmo thread, a segunda mensagem enxerga a primeira; um thread novo começa vazio (FR-022, plan D-01 e D-06).
+- [x] T008 [P] Teste da CLI em `tests/agent/test_cli.py` com o modelo simulado e entrada roteirizada: `/nova` troca o thread, `/sair` encerra, `--transcricao` grava a conversa em markdown e `--debug` mostra o nome das ferramentas chamadas (FR-022, plan S2-10).
 
 ### Implementação da Fundação
 
-- [ ] T009 [P] Implementar `src/emporio/money.py` (depende de T004).
-- [ ] T010 [P] Implementar `src/emporio/data/normalize.py` (depende de T005).
-- [ ] T011 Implementar `src/emporio/config.py`: caminhos (`data/`, `var/`, `registros/`, `evals/`), leitura do `.env`, `MODEL_NAME` e um relógio injetável no fuso `America/Campo_Grande` (plan S2-03).
-- [ ] T012 Implementar `src/emporio/data/loader.py` com as tabelas-base dos dois SQLite, os índices e as funções de conexão só leitura (`mode=ro` e `PRAGMA query_only=ON`) (depende de T006, T010 e T011).
-- [ ] T013 [P] Implementar `tests/fakes.py`: um modelo de chat simulado, roteirizado por uma lista de `AIMessage` (com ou sem `tool_calls`), compatível com `bind_tools`.
-- [ ] T014 Implementar `src/emporio/agent/prompt.py` (bloco de persona e bloco de data/hora local) e `src/emporio/agent/graph.py` (`StateGraph` modelo → `ToolNode` → modelo com `tools_condition`, `InMemorySaver`, registro de ferramentas e modelo injetável), conferindo os nomes da API na versão instalada (depende de T007, T011 e T013).
-- [ ] T015 Implementar `src/emporio/cli.py` com o laço de conversa, `/nova`, `/sair`, `--debug` e `--transcricao` (depende de T008 e T014).
+- [x] T009 [P] Implementar `src/emporio/money.py` (depende de T004).
+- [x] T010 [P] Implementar `src/emporio/data/normalize.py` (depende de T005).
+- [x] T011 Implementar `src/emporio/config.py`: caminhos (`data/`, `var/`, `registros/`, `evals/`), leitura do `.env`, `MODEL_NAME` e um relógio injetável no fuso `America/Campo_Grande` (plan S2-03).
+- [x] T012 Implementar `src/emporio/data/loader.py` com as tabelas-base dos dois SQLite, os índices e as funções de conexão só leitura (`mode=ro` e `PRAGMA query_only=ON`) (depende de T006, T010 e T011).
+- [x] T013 [P] Implementar `tests/fakes.py`: um modelo de chat simulado, roteirizado por uma lista de `AIMessage` (com ou sem `tool_calls`), compatível com `bind_tools`.
+- [x] T014 Implementar `src/emporio/agent/prompt.py` (bloco de persona e bloco de data/hora local) e `src/emporio/agent/graph.py` (`StateGraph` modelo → `ToolNode` → modelo com `tools_condition`, `InMemorySaver`, registro de ferramentas e modelo injetável), conferindo os nomes da API na versão instalada (depende de T007, T011 e T013).
+- [x] T015 Implementar `src/emporio/cli.py` com o laço de conversa, `/nova`, `/sair`, `--debug` e `--transcricao` (depende de T008 e T014).
 
 **Checkpoint**: a carga gera os dois bancos e a CLI conversa com o modelo simulado. Commit da Fundação.
 
