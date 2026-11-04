@@ -54,19 +54,19 @@ história, ao fechar o checkpoint.
 
 ### Testes para a História 1 ⚠️
 
-- [ ] T016 [P] [US1] Teste de `business_hours` em `tests/unit/test_business_hours.py`: aberto e fechado em dias úteis (8h59, 9h, 17h59, 18h), sábado (12h59 e 13h), domingo fechado e a próxima abertura a partir de sexta à noite, sábado à tarde e domingo, no fuso de Campo Grande (FR-003, FR-021, FR-024).
-- [ ] T017 [P] [US1] Teste de `policies` em `tests/unit/test_policies.py`: a extração do PDF gera todos os tópicos do plan; cada tópico contém os fatos-chave (horário 09:00 às 18:00; faixas de R$ 50, R$ 80 e R$ 100; 7 dias para arrependimento, 30 para defeito e 90 de garantia legal; frete grátis acima de R$ 500,00; prazo de 24 horas úteis); as notas S-03, S-14, S-15 e S-16 aparecem nos tópicos certos; um tópico desconhecido devolve erro claro (FR-002, FR-016).
-- [ ] T018 [P] [US1] Teste de `get_store_info` em `tests/tools/test_store.py`: telefone (67) 3341-4444 e WhatsApp (67) 3321-4500 com rótulo (S-01); e-mail `contato@emporiodamusica.com.br`, sem acento (S-02); "aberta agora" e a próxima abertura com o relógio fixo; o aviso de que a loja fecha nos feriados, sem afirmar datas (S-15) (FR-002, FR-003, FR-021).
-- [ ] T019 [P] [US1] Teste do prompt em `tests/agent/test_prompt.py`: o prompt montado contém a persona em português (informal, mas profissional), o fluxo saudação → entendimento → consulta → resposta → fechamento, a apresentação como assistente virtual, o cumprimento pelo nome quando o cliente o informa, a data e a hora locais e a regra de dizer "não tenho essa informação" e indicar os contatos quando o manual não cobre o assunto (FR-001, FR-002).
-- [ ] T065 [P] [US1] Teste da ferramenta `get_policy` em `tests/tools/test_policy_tool.py`, sem o modelo: cada tópico válido devolve o texto das seções certas e as notas de interpretação desse tópico (S-03 em parcelamento, S-14 em trocas_devolucoes e garantia, S-16 em atendimento); um tópico fora da lista é recusado com mensagem clara; a saída de sobre_loja traz o e-mail sem acento e os dois telefones com rótulo, e não o e-mail acentuado da seção 1.2 (S-01, S-02) (FR-002, FR-008, FR-016).
+- [x] T016 [P] [US1] Teste de `business_hours` em `tests/unit/test_business_hours.py`: aberto e fechado em dias úteis (8h59, 9h, 17h59, 18h), sábado (12h59 e 13h), domingo fechado e a próxima abertura a partir de sexta à noite, sábado à tarde e domingo, no fuso de Campo Grande (FR-003, FR-021, FR-024).
+- [x] T017 [P] [US1] Teste de `policies` em `tests/unit/test_policies.py`: a extração do PDF gera todos os tópicos do plan; cada tópico contém os fatos-chave (horário 09:00 às 18:00; faixas de R$ 50, R$ 80 e R$ 100; 7 dias para arrependimento, 30 para defeito e 90 de garantia legal; frete grátis acima de R$ 500,00; prazo de 24 horas úteis); as notas S-03, S-14, S-15 e S-16 aparecem nos tópicos certos; um tópico desconhecido devolve erro claro (FR-002, FR-016).
+- [x] T018 [P] [US1] Teste de `get_store_info` em `tests/tools/test_store.py`: telefone (67) 3341-4444 e WhatsApp (67) 3321-4500 com rótulo (S-01); e-mail `contato@emporiodamusica.com.br`, sem acento (S-02); "aberta agora" e a próxima abertura com o relógio fixo; o aviso de que a loja fecha nos feriados, sem afirmar datas (S-15) (FR-002, FR-003, FR-021).
+- [x] T019 [P] [US1] Teste do prompt em `tests/agent/test_prompt.py`: o prompt montado contém a persona em português (informal, mas profissional), o fluxo saudação → entendimento → consulta → resposta → fechamento, a apresentação como assistente virtual, o cumprimento pelo nome quando o cliente o informa, a data e a hora locais e a regra de dizer "não tenho essa informação" e indicar os contatos quando o manual não cobre o assunto (FR-001, FR-002).
+- [x] T065 [P] [US1] Teste da ferramenta `get_policy` em `tests/tools/test_policy_tool.py`, sem o modelo: cada tópico válido devolve o texto das seções certas e as notas de interpretação desse tópico (S-03 em parcelamento, S-14 em trocas_devolucoes e garantia, S-16 em atendimento); um tópico fora da lista é recusado com mensagem clara; a saída de sobre_loja traz o e-mail sem acento e os dois telefones com rótulo, e não o e-mail acentuado da seção 1.2 (S-01, S-02) (FR-002, FR-008, FR-016).
 
 ### Implementação da História 1
 
-- [ ] T020 [P] [US1] Implementar `src/emporio/rules/business_hours.py` (depende de T016).
-- [ ] T021 [P] [US1] Implementar `src/emporio/data/policies.py`: extração com `pypdf`, recorte pelos títulos `N.` e `N.N`, mapeamento das seções para os tópicos e as notas de interpretação (depende de T017).
-- [ ] T022 [US1] Implementar `src/emporio/tools/store.py` (`get_store_info`) (depende de T018 e T020).
-- [ ] T023 [US1] Implementar `src/emporio/tools/policies.py` (`get_policy`, com `topic` restrito aos valores do plan) (depende de T021 e T065).
-- [ ] T024 [US1] Completar os blocos 1, 2 e 4 do prompt em `src/emporio/agent/prompt.py` e registrar `get_store_info` e `get_policy` em `src/emporio/agent/graph.py` (depende de T019, T022 e T023).
+- [x] T020 [P] [US1] Implementar `src/emporio/rules/business_hours.py` (depende de T016).
+- [x] T021 [P] [US1] Implementar `src/emporio/data/policies.py`: extração com `pypdf`, recorte pelos títulos `N.` e `N.N`, mapeamento das seções para os tópicos e as notas de interpretação (depende de T017).
+- [x] T022 [US1] Implementar `src/emporio/tools/store.py` (`get_store_info`) (depende de T018 e T020).
+- [x] T023 [US1] Implementar `src/emporio/tools/policies.py` (`get_policy`, com `topic` restrito aos valores do plan) (depende de T021 e T065).
+- [x] T024 [US1] Completar os blocos 1, 2 e 4 do prompt em `src/emporio/agent/prompt.py` e registrar `get_store_info` e `get_policy` em `src/emporio/agent/graph.py` (depende de T019, T022 e T023).
 
 **Checkpoint**: a História 1 funciona sozinha pela CLI. Rodar os gates e commitar a US1.
 

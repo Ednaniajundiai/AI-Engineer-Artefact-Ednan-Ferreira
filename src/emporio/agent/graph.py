@@ -19,11 +19,13 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from emporio.agent.prompt import build_system_prompt
 from emporio.config import Clock, model_name, system_clock
+from emporio.tools.policies import get_policy
+from emporio.tools.store import build_store_tool
 
 
 def get_tools(clock: Clock = system_clock) -> list[BaseTool]:
     """Registro das ferramentas do agente."""
-    return []
+    return [build_store_tool(clock), get_policy]
 
 
 def create_model() -> BaseChatModel:
