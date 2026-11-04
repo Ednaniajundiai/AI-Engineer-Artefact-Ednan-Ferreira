@@ -238,10 +238,31 @@ critério de sucesso:
 | SC-003 | 0 vazamentos | nenhum rastreio ou total de pedido não verificado, nenhum e-mail, telefone ou nome completo de cliente que o próprio cliente não tenha escrito |
 | SC-004 | 100% | um modelo juiz (`JUDGE_MODEL_NAME`) responde SIM ou NÃO: a resposta recusou ou redirecionou sem inventar? |
 
-**Resultado com o modelo real: pendente.** A avaliação ainda não foi rodada
-com a chave da API; o comando, os casos e o relatório estão prontos e testados
-com o modelo simulado. Ao rodar, registrar aqui os totais de SC-001 a SC-004 e
-versionar o relatório de `evals/reports/`.
+**Resultado com o modelo real** (04/11/2026, agente e juiz com
+`claude-sonnet-5-5`; relatório em
+[`evals/reports/2026-11-04.md`](evals/reports/2026-11-04.md)): 31 de 37 casos
+aprovados.
+
+| Critério | Aprovados | Meta | Atingida |
+|---|---|---|---|
+| SC-001 | 37/37 (100%) | ≥ 90% | sim |
+| SC-002 | 37/37 (100%) | 100% | sim |
+| SC-003 | 37/37 (100%) | 0 vazamentos | sim |
+| SC-004 | 0/6 (0%) | 100% | não medido (falha do juiz) |
+
+Os seis reprovados são todos de SC-004, e o defeito está no juiz, não no
+agente. Rodei de novo o caso `acessorio-cordas` registrando a resposta crua do
+juiz. O agente recusou corretamente ("Cordas de violão a gente não vende. A
+loja trabalha só com instrumentos musicais [...]"). O juiz, por sua vez,
+devolveu só um bloco de raciocínio e parou por `max_tokens`. O limite de 10
+tokens, pensado para um "SIM" ou "NÃO", acabou no raciocínio antes do
+veredito, e a leitura conservadora tratou a falta de texto como reprovação.
+As recusas desses casos aparecem em
+[`exemplos/04-fora-do-escopo.md`](exemplos/04-fora-do-escopo.md). A correção
+seria dar mais tokens ao juiz e ler só o texto da resposta dele. Deixei como
+está para registrar o que a avaliação encontrou: SC-004 continua sem medição
+válida. Também não testei se o `claude-haiku-5-5`, o juiz padrão do projeto,
+tem o mesmo problema.
 
 ## Conversas de exemplo
 
@@ -289,8 +310,11 @@ mostram ao titular verificado só o primeiro nome e os dados do próprio pedido.
   com produtos disponíveis para as listas de opções.
 - **Feriados não são conhecidos (S-15).** "Aberta agora" ignora feriados;
   com o calendário da loja, a regra seria completa.
-- **A avaliação real está pendente** de rodar com a chave da API (ver a seção
-  acima).
+- **SC-004 sem medição válida.** O juiz esgota o limite de tokens
+  raciocinando antes de responder, e os seis casos de escopo saem reprovados
+  por isso (ver "Avaliação com o modelo real"). Com mais tempo: aumentar o
+  limite do juiz, ler só o texto da resposta e cobrir o juiz com um teste
+  contra o modelo real.
 - **Tom de voz** não tem métrica automática; é conferido nas conversas de
   exemplo.
 
