@@ -159,3 +159,30 @@ def test_at_most_twenty_rows(query):
 def test_formatting_uses_the_money_module(query):
     row = query("SELECT pix_price FROM v_products WHERE product_id = 81").rows[0]
     assert row["pix_price"] == format_brl(Decimal("599.9") * Decimal("0.95"))
+
+
+def test_warns_when_the_result_is_cut_by_the_limit(var_dir):
+    text = query_catalog_text(
+        "SELECT name, final_price FROM v_products "
+        "WHERE category = 'Ukuleles' AND availability = 'available' LIMIT 5",
+        var_dir,
+    )
+    assert text.startswith("5 linhas")
+    assert "Atenção: resultado limitado a 5 linhas pelo LIMIT" in text
+    assert "COUNT(*)" in text
+
+
+def test_warns_when_the_enforced_maximum_cuts_the_result(var_dir):
+    text = query_catalog_text("SELECT name FROM v_products", var_dir)
+    assert "Atenção: resultado limitado a 20 linhas pelo LIMIT" in text
+
+
+def test_no_warning_when_fewer_rows_than_the_limit(var_dir):
+    text = query_catalog_text(
+        "SELECT name FROM v_products WHERE category = 'Ukuleles' "
+        "AND availability = 'available' LIMIT 50",
+        var_dir,
+    )
+    assert "Atenção" not in text
+    text = query_catalog_text("SELECT COUNT(*) FROM v_products", var_dir)
+    assert "Atenção" not in text

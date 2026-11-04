@@ -269,6 +269,7 @@ class QueryResult:
     columns: list[str]
     rows: list[dict[str, object]]
     error: str | None = None
+    limit: int | None = None
 
 
 def _unique(names: list[str]) -> list[str]:
@@ -318,7 +319,7 @@ def run_catalog_query(
             is_number = isinstance(value, int | float) and not isinstance(value, bool)
             row[name] = format_brl(value) if money and is_number else value
         rows.append(row)
-    return QueryResult(names, rows)
+    return QueryResult(names, rows, limit=int(tree.args["limit"].expression.name))
 
 
 def query_catalog_text(
@@ -331,7 +332,13 @@ def query_catalog_text(
     count = len(result.rows)
     label = "1 linha" if count == 1 else f"{count} linhas"
     payload = json.dumps(result.rows, ensure_ascii=False)
-    return f"{label} (máximo de {MAX_ROWS}). Valores de dinheiro já formatados:\n{payload}"
+    text = f"{label} (máximo de {MAX_ROWS}). Valores de dinheiro já formatados:\n{payload}"
+    if result.limit is not None and count == result.limit:
+        text += (
+            f"\nAtenção: resultado limitado a {count} linhas pelo LIMIT; pode haver mais "
+            "itens. Para informar o total, use COUNT(*)."
+        )
+    return text
 
 
 QUERY_CATALOG_DESCRIPTION = f"""\
