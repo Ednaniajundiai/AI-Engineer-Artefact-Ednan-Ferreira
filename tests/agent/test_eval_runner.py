@@ -1,12 +1,12 @@
 """O runner da avaliação de ponta a ponta, com modelo e juiz simulados (FR-023)."""
 
-from emporio.evaluation.cases import ExpectedValues, load_cases
-from emporio.evaluation.runner import render_report, run_cases
 from langchain_core.messages import AIMessage
 from tests.fakes import ScriptedChatModel, tool_call
 
 from emporio import config
 from emporio.agent.graph import build_graph
+from emporio.evaluation.cases import ExpectedValues, load_cases
+from emporio.evaluation.runner import render_report, run_cases
 from emporio.tools.catalog import build_catalog_tools
 
 CASES = """

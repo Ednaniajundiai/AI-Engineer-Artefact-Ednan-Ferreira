@@ -4,6 +4,7 @@ import json
 import re
 
 import pytest
+
 from emporio.tools.complaints import (
     COMPLAINTS_FILE,
     PROTOCOL_PATTERN,

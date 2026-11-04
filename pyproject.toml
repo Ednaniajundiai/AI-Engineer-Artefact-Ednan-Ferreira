@@ -40,6 +40,9 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "T20"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["emporio"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
