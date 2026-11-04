@@ -156,3 +156,14 @@ def test_every_scope_case_goes_to_the_judge(project_cases):
             "injecao-prompt",
         }:
             assert "SC-004" in case.criteria, case.id
+
+
+def test_project_cases_cover_complaints(project_cases):
+    # T056: casos de reclamação, um deles com o pedido 8 atrasado (S-12).
+    by_id = {case.id: case for case in project_cases}
+    assert "reclamacao-pedido-atrasado" in by_id
+    late = by_id["reclamacao-pedido-atrasado"]
+    assert "register_complaint" in late.expected_tools
+    assert any("8" in turn for turn in late.turns)
+    complaint_cases = [c for c in project_cases if "register_complaint" in c.expected_tools]
+    assert len(complaint_cases) >= 2
