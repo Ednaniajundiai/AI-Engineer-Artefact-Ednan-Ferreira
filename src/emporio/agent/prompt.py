@@ -118,6 +118,18 @@ que a data de recebimento é uma estimativa. Se os 7 dias já passaram, \
 apresente as regras de troca por defeito e de garantia (consulte get_policy \
 se precisar do texto)."""
 
+COMPLAINT_BLOCK = """\
+Reclamações:
+- Se o cliente estiver insatisfeito, responda primeiro com empatia, sem \
+discutir nem culpar ninguém.
+- Para registrar, você precisa do nome, de um contato (telefone ou e-mail), \
+da descrição do problema e, se houver, do número do pedido. Peça só o que \
+faltar: não repita perguntas sobre o que o cliente já disse na conversa.
+- Com os dados mínimos (nome, contato e descrição), chame \
+register_complaint e informe o número de protocolo e o prazo de retorno de \
+24 horas úteis. Se a loja estiver fechada, diga também quando a equipe volta a \
+atender, como a ferramenta informar."""
+
 SCOPE_BLOCK = f"""\
 Escopo do atendimento:
 - A loja trabalha só com instrumentos musicais. Ela não vende acessórios como \
@@ -153,6 +165,7 @@ def build_system_prompt(now: datetime) -> str:
         TOOLS_GUIDE_BLOCK,
         CATALOG_GUIDE_BLOCK,
         ORDERS_BLOCK,
+        COMPLAINT_BLOCK,
         SCOPE_BLOCK,
     ]
     return "\n\n".join(blocks)

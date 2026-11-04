@@ -171,14 +171,14 @@ história, ao fechar o checkpoint.
 
 ### Testes para a História 5 ⚠️
 
-- [ ] T052 [P] [US5] Teste de `register_complaint` em `tests/tools/test_complaints.py`: protocolo no formato `REC-AAAAMMDD-XXXX`; uma linha JSONL por reclamação, gravada só em `registros/reclamacoes.jsonl`; recusa sem nome, contato ou descrição, informando o que falta; prazo de 24 horas úteis na resposta; fora do expediente (relógio fixo), a resposta traz quando a equipe volta (FR-020, FR-021).
-- [ ] T053 [P] [US5] Teste do prompt em `tests/agent/test_complaint_prompt.py`: o prompt manda responder com empatia e pedir só o que falta entre nome, contato, descrição e número do pedido; com o modelo simulado, a reclamação registrada devolve o protocolo na resposta (FR-020).
+- [x] T052 [P] [US5] Teste de `register_complaint` em `tests/tools/test_complaints.py`: protocolo no formato `REC-AAAAMMDD-XXXX`; uma linha JSONL por reclamação, gravada só em `registros/reclamacoes.jsonl`; recusa sem nome, contato ou descrição, informando o que falta; prazo de 24 horas úteis na resposta; fora do expediente (relógio fixo), a resposta traz quando a equipe volta (FR-020, FR-021).
+- [x] T053 [P] [US5] Teste do prompt em `tests/agent/test_complaint_prompt.py`: o prompt manda responder com empatia e pedir só o que falta entre nome, contato, descrição e número do pedido; com o modelo simulado, a reclamação registrada devolve o protocolo na resposta (FR-020).
 
 ### Implementação da História 5
 
-- [ ] T054 [US5] Implementar `src/emporio/tools/complaints.py` (`register_complaint`) (depende de T020 e T052).
-- [ ] T055 [US5] Acrescentar ao prompt o guia de reclamação e registrar `register_complaint` no grafo (depende de T053 e T054).
-- [ ] T056 [US5] Acrescentar a `evals/cases.yaml` os casos de reclamação, um deles com o pedido 8 atrasado (S-12) (depende de T051 e T055).
+- [x] T054 [US5] Implementar `src/emporio/tools/complaints.py` (`register_complaint`) (depende de T020 e T052).
+- [x] T055 [US5] Acrescentar ao prompt o guia de reclamação e registrar `register_complaint` no grafo (depende de T053 e T054).
+- [x] T056 [US5] Acrescentar a `evals/cases.yaml` os casos de reclamação, um deles com o pedido 8 atrasado (S-12) (depende de T051 e T055).
 
 **Checkpoint**: todas as histórias funcionam pela CLI. Rodar os gates e commitar a US5.
 

@@ -225,3 +225,27 @@ cases:
     turns: ["Quero cancelar o meu pedido 13, pode fazer isso pra mim?"]
     expected_tools: [none]
     criteria: [SC-001, SC-002, SC-003, SC-004]
+
+  # --- US5: registro de reclamação ------------------------------------------
+  - id: reclamacao-completa
+    description: "Reclamação com os dados mínimos: protocolo e prazo de 24 horas úteis (US5 cenário 2)"
+    turns:
+      - "Quero registrar uma reclamação. Meu nome é Carla, meu telefone é (67) 99100-2030 e o violão que comprei veio com o tampo riscado."
+    expected_tools: [register_complaint]
+    must_contain: ["REC-", "24 horas úteis"]
+
+  - id: reclamacao-incompleta
+    description: "Reclamação sem contato: pede só o que falta e depois registra (US5 cenário 1)"
+    turns:
+      - "Estou muito chateado, meu nome é Marcos e o teclado que comprei parou de ligar."
+      - "Pode anotar o e-mail marcos.teste@exemplo.com."
+    expected_tools: [register_complaint]
+    must_contain: ["REC-"]
+
+  - id: reclamacao-pedido-atrasado
+    description: "Pedido 8 com previsão vencida vira reclamação registrada (S-12, US3 cenário 4 + US5)"
+    turns:
+      - "Meu pedido 8 não chegou até hoje. O e-mail da compra é anacarol.ferreira@coldmail.com."
+      - "Quero registrar uma reclamação, sim. Meu nome é Ana e pode usar esse mesmo e-mail de contato."
+    expected_tools: [get_order_status, register_complaint]
+    must_contain: ["REC-"]

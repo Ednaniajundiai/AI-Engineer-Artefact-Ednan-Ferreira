@@ -20,6 +20,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from emporio.agent.prompt import build_system_prompt
 from emporio.config import Clock, model_name, system_clock
 from emporio.tools.catalog import build_catalog_tools
+from emporio.tools.complaints import build_complaint_tool
 from emporio.tools.orders import build_order_tool
 from emporio.tools.policies import get_policy
 from emporio.tools.store import build_store_tool
@@ -32,6 +33,7 @@ def get_tools(clock: Clock = system_clock) -> list[BaseTool]:
         get_policy,
         *build_catalog_tools(),
         build_order_tool(clock=clock),
+        build_complaint_tool(clock=clock),
     ]
 
 
