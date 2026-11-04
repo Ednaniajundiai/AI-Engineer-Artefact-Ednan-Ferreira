@@ -45,6 +45,17 @@ def _stdout_write(text: str) -> None:
     sys.stdout.flush()
 
 
+def use_utf8_input(stream=None) -> None:
+    """Lê a entrada redirecionada (`< roteiro.txt`) como UTF-8.
+
+    No Windows, o Python usa a codificação local (cp1252) para a entrada que não vem
+    do terminal, e os acentos chegariam quebrados ao agente e à transcrição.
+    """
+    stream = sys.stdin if stream is None else stream
+    if not stream.isatty():
+        stream.reconfigure(encoding="utf-8")
+
+
 def _append(path: Path | None, text: str) -> None:
     if path is None:
         return
@@ -132,6 +143,8 @@ def main(
             write("Defina ANTHROPIC_API_KEY no .env (veja o .env.example) para conversar.")
             return 1
 
+    if read_line is input:
+        use_utf8_input()
     transcript = Path(args.transcricao) if args.transcricao else None
     run_conversation(
         graph, read_line=read_line, write=write, debug=args.debug, transcript=transcript

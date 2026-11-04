@@ -1,11 +1,13 @@
 """CLI com o modelo simulado e entrada roteirizada (FR-022; plan S2-10)."""
 
+import io
+
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.tools import tool
 from tests.fakes import ScriptedChatModel, tool_call
 
 from emporio.agent.graph import build_graph
-from emporio.cli import main
+from emporio.cli import main, use_utf8_input
 
 
 @tool
@@ -77,3 +79,13 @@ def test_debug_shows_tool_names(clock):
     _, debug = _run(model, ["oi", "/sair"], clock, argv=["--debug"])
     assert "echo" in debug
     assert "Pronto!" in debug
+
+
+def test_redirected_input_is_read_as_utf8():
+    # No Windows, a entrada redirecionada (`< roteiro.txt`) chega com a codificação
+    # local (cp1252) e "violão" viraria "violÃ£o" antes de chegar ao agente.
+    stream = io.TextIOWrapper(io.BytesIO("Quanto custa um violão?\n".encode()), encoding="cp1252")
+
+    use_utf8_input(stream)
+
+    assert stream.readline() == "Quanto custa um violão?\n"
