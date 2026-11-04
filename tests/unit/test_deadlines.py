@@ -3,6 +3,7 @@
 from datetime import date
 
 import pytest
+
 from emporio.rules.deadlines import (
     DEFECT_EXCHANGE_DAYS,
     LEGAL_WARRANTY_DAYS,

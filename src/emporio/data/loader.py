@@ -120,6 +120,7 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     order_id INTEGER NOT NULL REFERENCES orders (order_id),
     product_id INTEGER NOT NULL,
+    product_name TEXT,
     quantity INTEGER NOT NULL
 );
 CREATE INDEX idx_customers_email ON customers (email_normalized);
@@ -267,6 +268,9 @@ def _materialize_catalog(conn: sqlite3.Connection) -> None:
 
 
 def _build_orders(data_dir: Path, path: Path) -> None:
+    # O nome do produto é copiado para o item, para que a ferramenta de pedidos
+    # leia só este arquivo (D-04).
+    product_names = {_int(r["product_id"]): r["name"].strip() for r in _read(data_dir, "products")}
     conn = _fresh(path)
     try:
         conn.executescript(ORDERS_SCHEMA)
@@ -310,6 +314,7 @@ def _build_orders(data_dir: Path, path: Path) -> None:
                 {
                     "order_id": _int(r["order_id"]),
                     "product_id": _int(r["product_id"]),
+                    "product_name": product_names.get(_int(r["product_id"])),
                     "quantity": _int(r["quantity"]),
                 }
                 for r in _read(data_dir, "order_items")

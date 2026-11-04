@@ -3,13 +3,13 @@
 from datetime import datetime
 
 import pytest
-from emporio.tools.orders import NOT_FOUND, build_order_tool
 from langchain_core.messages import AIMessage, ToolMessage
 from tests.fakes import ScriptedChatModel, tool_call
 
 from emporio.agent.graph import build_graph, get_tools
 from emporio.agent.prompt import build_system_prompt
 from emporio.config import TIMEZONE
+from emporio.tools.orders import NOT_FOUND, build_order_tool
 
 
 @pytest.fixture(scope="module")

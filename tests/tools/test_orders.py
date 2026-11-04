@@ -3,6 +3,7 @@
 import csv
 
 import pytest
+
 from emporio.tools.orders import (
     NOT_FOUND,
     build_order_tool,
