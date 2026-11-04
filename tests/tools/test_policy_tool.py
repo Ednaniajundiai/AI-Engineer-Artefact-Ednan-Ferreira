@@ -67,3 +67,32 @@ def test_sobre_loja_has_unaccented_email_and_both_labeled_phones():
 
 def test_topics_without_notes_have_no_notes_section():
     assert "Notas de interpretação" not in run("frete")
+
+
+def test_frete_for_other_cities_has_modalities_deadlines_and_depends_on_the_cep():
+    # US1 cenário 5: modalidades e prazos do manual; valor depende do CEP.
+    text = run("frete")
+    assert "PAC (Correios) | 5 a 12 dias úteis" in text
+    assert "SEDEX (Correios) | 2 a 5 dias úteis" in text
+    assert "Jadlog (.package) | 3 a 8 dias úteis" in text
+    assert "CEP de destino" in text
+
+
+def test_frete_mentions_special_freight_for_large_instruments():
+    # Caso de borda: instrumento de grande porte pode exigir cotação individual.
+    assert "frete especial com cotação individual" in run("frete")
+
+
+def test_pagamento_allows_pix_plus_card_above_two_thousand():
+    # Caso de borda: PIX e cartão juntos só acima de R$ 2.000,00.
+    text = run("pagamento")
+    assert "PIX + cartão" in text
+    assert "R$ 2.000,00" in text
+
+
+def test_trocas_devolucoes_states_the_withdrawal_conditions():
+    # US1 cenário 4: 7 dias do recebimento, embalagem original, sem uso, compra online.
+    text = run("trocas_devolucoes")
+    assert "Compras Online" in text
+    assert "após o recebimento" in text
+    assert "embalagem original, sem sinais de uso" in text
