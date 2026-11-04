@@ -252,10 +252,10 @@ roteiros com as mensagens do cliente estão em
 
 | Roteiro | O que mostra |
 |---|---|
-| `01-catalogo-e-preco` | saudação pelo nome, preço com PIX e parcelas, busca de violões até R$ 1.000 |
-| `02-politicas` | horário agora, troca por defeito, frete para outra cidade |
+| `01-catalogo-e-preco` | saudação pelo nome, preço do Takamine GD20 com PIX e parcelas, violões disponíveis até R$ 1.000 |
+| `02-politicas` | endereço da loja, horário agora, troca por defeito, frete para outra cidade |
 | `03-pedido-e-arrependimento` | verificação de identidade, pedido entregue e prazo de arrependimento vencido, com as regras de defeito e garantia (a conversa não trivial) |
-| `04-fora-do-escopo` | acessório, assunto alheio e tentativa de mudar as instruções |
+| `04-fora-do-escopo` | acessório, assunto alheio, tentativa de mudar as instruções e uma mensagem com três pedidos, um deles fora do escopo |
 | `05-reclamacao` | pedido 8 com previsão vencida e reclamação registrada com protocolo |
 
 Para gerar as cinco transcrições em `exemplos/` (com o `.env` preenchido):
